@@ -38,7 +38,10 @@ class ViewController: UIViewController {
         correctAnswer = Int.random(in: 0...2)
         totalQuestionsAsked += 1
         
-        title = "\(countries[correctAnswer].uppercased()) (Score: \(score))"
+        title = "\(countries[correctAnswer].uppercased())"
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .pause, target: self, action: #selector(showScore))
+        
         
         button1.setImage(UIImage(named: countries[0]), for: .normal)
         button2.setImage(UIImage(named: countries[1]), for: .normal)
@@ -69,7 +72,15 @@ class ViewController: UIViewController {
         showStats(title: alertTitle, message: message, alertAction: alertAction)
         
     }
-    func showStats(title: String, message: String, alertAction: String) {
+    // challenge day 22 - add a bar button item to the main view that shows score
+    @objc func showScore() {
+        let ac = UIAlertController(title: "Current Score", message: "You got \(score) correct out of \(totalQuestionsAsked - 1)", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Continue", style: .default, handler: nil))
+        
+        present(ac, animated: true)
+    }
+    
+    @objc func showStats(title: String, message: String, alertAction: String) {
         let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: alertAction, style: .default, handler: askQuestion))
         

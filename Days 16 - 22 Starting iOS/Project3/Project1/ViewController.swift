@@ -17,9 +17,6 @@ class ViewController: UITableViewController {
         title = "Storm Viewer"
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        // challege #2 from technique project #3 - add a share button that shares this app
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(shareApp))
-        
         // read file
         let fm = FileManager.default
         let path = Bundle.main.resourcePath! // force unwrap because this path must exist, it's where the app lives
@@ -49,14 +46,6 @@ class ViewController: UITableViewController {
             vc.imageTitle = "Picture \(indexPath.row + 1) of \(pictures.count)"
             navigationController?.pushViewController(vc, animated: true)
         }
-    }
-    @objc func shareApp() {
-        let shareAppDescription = "StormViewer is the best app ever!"
-        let shareURL = URL(string: "https://www.apple.com/app-store/")
-        // for unwrapping URL because I know it'll be there
-        let ac = UIActivityViewController(activityItems: [shareAppDescription, shareURL!], applicationActivities: [])
-        ac.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
-        present(ac, animated: true)
     }
 }
 
