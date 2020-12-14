@@ -20,10 +20,7 @@ class ViewController: UITableViewController {
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         title = "Your Grocery List"
-        
-        // set tag to use in shareButtonTapped()
-        shareButton.tag = 1
-        
+            
         navigationItem.leftBarButtonItem = clearListButton
         navigationItem.rightBarButtonItem = addItemButton
         toolbarItems = [flexSpace, shareButton]
@@ -66,14 +63,8 @@ class ViewController: UITableViewController {
     @objc func shareButtonTapped() {
         let listToShare = shoppingList.joined(separator: "\n")
         let activityController = UIActivityViewController(activityItems: [listToShare], applicationActivities: nil)
-        guard let buttons = toolbarItems else { return }
-        var shareButton: UIBarButtonItem?
+        guard let shareButton = toolbarItems?[1] else { return }
         
-        for button in buttons {
-            if button.tag == 0 {
-                shareButton = button
-            }
-        }
         
         activityController.popoverPresentationController?.barButtonItem = shareButton
         
