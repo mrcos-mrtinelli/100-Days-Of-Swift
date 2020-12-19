@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     // game state properties
     var activatedButtons = [UIButton]()
     var solutions = [String]()
+    var totalClues = 0
+    var correctSubmissions = 0
     
     var score = 0 {
         didSet {
@@ -81,6 +83,8 @@ class ViewController: UIViewController {
         // view
         let buttonsView = UIView()
         buttonsView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsView.layer.borderWidth = 1
+        buttonsView.layer.borderColor = UIColor.lightGray.cgColor
         view.addSubview(buttonsView)
         
         // NSLayoutConstraint to activate all constraints at once
@@ -153,6 +157,7 @@ class ViewController: UIViewController {
         
         if let solutionPosition = solutions.firstIndex(of: submittedAnswer) {
             activatedButtons.removeAll()
+            correctSubmissions += 1
             
             var splitAnswers = solutionsLabel.text?.components(separatedBy: "\n")
             splitAnswers?[solutionPosition] = submittedAnswer
@@ -162,11 +167,18 @@ class ViewController: UIViewController {
             
             currentAnswer.text = ""
             
-            if score % 7 == 0 {
+            if correctSubmissions == totalClues {
                 let ac = UIAlertController(title: "Well done!", message: "Ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
                 present(ac, animated: true)
             }
+        } else {
+            
+            score -= 1
+            
+            let ac = UIAlertController(title: "Sorry!", message: "That does not match any solutions.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Try again", style: .default, handler: nil))
+            present(ac, animated: true)
         }
         
     }
@@ -183,11 +195,16 @@ class ViewController: UIViewController {
         var clueString = ""
         var solutionString = ""
         var letterBits = [String]()
+                
+        totalClues = 0
+        correctSubmissions = 0
         
         if let fileURL = Bundle.main.url(forResource: "level\(level)", withExtension: ".txt") {
             if let fileContents = try? String(contentsOf: fileURL) {
                 var lines = fileContents.components(separatedBy: "\n")
                 lines.shuffle()
+                
+                totalClues = lines.count
                 
                 for (index, line) in lines.enumerated() {
                     let parts = line.components(separatedBy: ": ")
@@ -218,7 +235,7 @@ class ViewController: UIViewController {
         }
     }
     func levelUp(action: UIAlertAction) {
-        level += 1
+        level = level == 2 ? 1 : level + 1
         solutions.removeAll(keepingCapacity: true)
         
         loadLevel()
