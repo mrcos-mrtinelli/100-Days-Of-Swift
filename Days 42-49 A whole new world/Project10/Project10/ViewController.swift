@@ -16,7 +16,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
         
     }
@@ -43,25 +43,52 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     }
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let person = people[indexPath.item]
+        let ac = UIAlertController(title: "\(person.name)", message: "Would you like to rename or delete this person?", preferredStyle: .alert)
         
-        let ac = UIAlertController(title: "Rename Perso", message: nil, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Rename", style: .default) {
+            [weak self] _ in
+            self?.renamePerson(person: person)
+        })
+        ac.addAction(UIAlertAction(title: "Delete", style: .default) {
+            [weak self] _ in
+            self?.deletePerson(person: person)
+        })
+        ac.addAction(UIAlertAction(title: "Cancel", style: .default))
+        
+        present(ac, animated: true)
+    }
+    func renamePerson(person: Person) {
+        let ac = UIAlertController(title: "Rename Person", message: nil, preferredStyle: .alert)
         ac.addTextField()
         
-        ac.addAction(UIAlertAction(title: "Ok", style: .default) {
+        ac.addAction(UIAlertAction(title: "Rename", style: .default) {
             [weak self, weak ac] _ in
             guard let newName = ac?.textFields?[0].text else { return }
             person.name = newName
             self?.collectionView.reloadData()
         })
-        ac.addAction(UIAlertAction(title: "Cancel", style: .default))
-        
         present(ac, animated: true)
+    }
+    func deletePerson(person: Person) {
+        guard let index = people.firstIndex(of: person) else { return }
+        let fm = FileManager.default
+        let imagePath = getDocumentsDirectory().appendingPathComponent(person.image)
+        
+        try? fm.removeItem(at: imagePath)
+
+        people.remove(at: index)
+        collectionView.reloadData()
     }
     
     @objc func addNewPerson() {
         let picker = UIImagePickerController()
         picker.allowsEditing = true
         picker.delegate = self
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        }
+        
         present(picker, animated: true)
     }
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
