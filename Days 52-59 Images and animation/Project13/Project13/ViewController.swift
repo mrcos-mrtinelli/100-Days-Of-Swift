@@ -10,6 +10,10 @@ import UIKit
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var intensity: UISlider!
+    @IBOutlet var radius: UISlider!
+    
+    @IBOutlet var changeFilterButton: UIButton!
+    
     // store image user selected
     var currentImage: UIImage!
     
@@ -34,15 +38,22 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         applyProcessing()
     }
+    @IBAction func radiusChanged(_ sender: Any) {
+        if currentImage == nil {
+            print("no image")
+        }
+        applyProcessing()
+    }
+    
     @IBAction func changeFilter(_ sender: UIButton) {
         let ac = UIAlertController(title: "Choose Filter", message: nil, preferredStyle: .actionSheet)
-        ac.addAction(UIAlertAction(title: "CIBumpDistortion", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CIGaussianBlur", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CIPixellate", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CISepiaTone", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CITwirlDistortion", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CIUnsharpMask", style: .default, handler: setFilter))
-        ac.addAction(UIAlertAction(title: "CIVignette", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Bump Distortion", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Gaussian Blur", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Pixellate", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Sepia Tone", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Twirl Distortion", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Unsharp Mask", style: .default, handler: setFilter))
+        ac.addAction(UIAlertAction(title: "Vignette", style: .default, handler: setFilter))
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         if let popoverController = ac.popoverPresentationController {
@@ -54,8 +65,25 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
     }
     @IBAction func savePressed(_ sender: Any) {
-        guard let image = imageView.image else { return }
+        guard let image = imageView.image else {
+            let ac = UIAlertController(title: "Error: No image to save.", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+            
+            return
+        }
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+    }
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            let ac = UIAlertController(title: "Error saving", message: error.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Ok", style: .default))
+            present(ac, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Image Saved", message: "Your image saved successfully!", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Ok", style: .default))
+            present(ac, animated: true)
+        }
     }
     
     // image picker code
@@ -77,27 +105,50 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         applyProcessing()
     }
     func setFilter(action: UIAlertAction) {
-        // make sure we have a valid image before continuing!
         guard currentImage != nil else { return }
-
-        // safely read the alert action's title
         guard let actionTitle = action.title else { return }
-
-        currentFilter = CIFilter(name: actionTitle)
+        
+        changeFilterButton.setTitle("Filter: \(actionTitle)", for: .normal)
+        currentFilter = CIFilter(name: getFilterReference(title: actionTitle))
 
         let beginImage = CIImage(image: currentImage)
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
-
+        
         applyProcessing()
     }
+    func getFilterReference(title: String) -> String {
+        switch title {
+        case "Bump Distortion":
+            return "CIBumpDistortion"
+        case "Gaussian Blur":
+            return "CIGaussianBlur"
+        case "Pixellate":
+            return "CIPixellate"
+        case "Sepia Tone":
+            return "CISepiaTone"
+        case "Twirl Distortion":
+            return "CITwirlDistortion"
+        case "Unsharp Mask":
+            return "CIUnsharpMask"
+        case "Vignette":
+            return "CIVignette"
+        default:
+            return "ERROR"
+        }
+    }
+        
     func applyProcessing() {
         let inputKeys = currentFilter.inputKeys
+        
+        for key in inputKeys {
+            print(key)
+        }
         
         if inputKeys.contains(kCIInputIntensityKey) {
             currentFilter.setValue(intensity.value, forKey: kCIInputIntensityKey)
         }
         if inputKeys.contains(kCIInputRadiusKey) {
-            currentFilter.setValue(intensity.value * 200, forKey: kCIInputRadiusKey)
+            currentFilter.setValue(radius.value * 200, forKey: kCIInputRadiusKey)
         }
         if inputKeys.contains(kCIInputScaleKey) {
             currentFilter.setValue(intensity.value * 10, forKey: kCIInputScaleKey)
@@ -113,17 +164,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
             let processedImage = UIImage(cgImage: cgImage)
             imageView.image = processedImage
-        }
-    }
-    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-        if let error = error {
-            let ac = UIAlertController(title: "Error saving", message: error.localizedDescription, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Ok", style: .default))
-            present(ac, animated: true)
-        } else {
-            let ac = UIAlertController(title: "Image Saved", message: "Your image saved successfully!", preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Ok", style: .default))
-            present(ac, animated: true)
         }
     }
 }
