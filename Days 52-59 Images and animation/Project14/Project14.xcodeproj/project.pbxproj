@@ -16,6 +16,9 @@
 		8DC3F54A25A5397A00DC5126 /* whackBad.caf in Resources */ = {isa = PBXBuildFile; fileRef = 8DC3F54825A5397A00DC5126 /* whackBad.caf */; };
 		8DC3F54B25A5397A00DC5126 /* whack.caf in Resources */ = {isa = PBXBuildFile; fileRef = 8DC3F54925A5397A00DC5126 /* whack.caf */; };
 		8DC3F55125A540EC00DC5126 /* WhackSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DC3F55025A540EC00DC5126 /* WhackSlot.swift */; };
+		8DE742FC25A69E7F00B47DDB /* gameOver.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 8DE742FB25A69E7F00B47DDB /* gameOver.m4a */; };
+		8DE7430025A6A1A100B47DDB /* Smoke.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8DE742FF25A6A1A100B47DDB /* Smoke.sks */; };
+		8DE7430725A6A7F500B47DDB /* Mud.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8DE7430625A6A7F500B47DDB /* Mud.sks */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,9 @@
 		8DC3F54825A5397A00DC5126 /* whackBad.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = whackBad.caf; sourceTree = "<group>"; };
 		8DC3F54925A5397A00DC5126 /* whack.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = whack.caf; sourceTree = "<group>"; };
 		8DC3F55025A540EC00DC5126 /* WhackSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhackSlot.swift; sourceTree = "<group>"; };
+		8DE742FB25A69E7F00B47DDB /* gameOver.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = gameOver.m4a; sourceTree = "<group>"; };
+		8DE742FF25A6A1A100B47DDB /* Smoke.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Smoke.sks; sourceTree = "<group>"; };
+		8DE7430625A6A7F500B47DDB /* Mud.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Mud.sks; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,13 +71,16 @@
 				8DC3F53025A5384A00DC5126 /* AppDelegate.swift */,
 				8DC3F53225A5384A00DC5126 /* GameScene.sks */,
 				8DC3F53625A5384A00DC5126 /* GameScene.swift */,
+				8DE742FF25A6A1A100B47DDB /* Smoke.sks */,
 				8DC3F53825A5384A00DC5126 /* GameViewController.swift */,
 				8DC3F53A25A5384A00DC5126 /* Main.storyboard */,
 				8DC3F55025A540EC00DC5126 /* WhackSlot.swift */,
+				8DE7430625A6A7F500B47DDB /* Mud.sks */,
 				8DC3F53D25A5384B00DC5126 /* Assets.xcassets */,
 				8DC3F53F25A5384B00DC5126 /* Info.plist */,
 				8DC3F54925A5397A00DC5126 /* whack.caf */,
 				8DC3F54825A5397A00DC5126 /* whackBad.caf */,
+				8DE742FB25A69E7F00B47DDB /* gameOver.m4a */,
 			);
 			path = Project14;
 			sourceTree = "<group>";
@@ -135,8 +144,11 @@
 			files = (
 				8DC3F53C25A5384A00DC5126 /* Main.storyboard in Resources */,
 				8DC3F54B25A5397A00DC5126 /* whack.caf in Resources */,
+				8DE7430025A6A1A100B47DDB /* Smoke.sks in Resources */,
 				8DC3F54A25A5397A00DC5126 /* whackBad.caf in Resources */,
+				8DE7430725A6A7F500B47DDB /* Mud.sks in Resources */,
 				8DC3F53325A5384A00DC5126 /* GameScene.sks in Resources */,
+				8DE742FC25A69E7F00B47DDB /* gameOver.m4a in Resources */,
 				8DC3F53E25A5384B00DC5126 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
