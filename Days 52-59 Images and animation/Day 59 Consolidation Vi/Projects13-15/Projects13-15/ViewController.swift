@@ -57,7 +57,6 @@ class ViewController: UITableViewController {
                     DispatchQueue.main.async {
                         self.updateUI()
                     }
-                    
                 }
             }
             task.resume()
@@ -77,11 +76,15 @@ class ViewController: UITableViewController {
     func sortByRegions() {
         // https://www.hackingwithswift.com/example-code/language/how-to-group-arrays-using-dictionaries\
         // https://www.ralfebert.de/ios-examples/uikit/uitableviewcontroller/grouping-sections/
-        let groupedCountries = Dictionary(grouping: countries) { $0.region  }
         
+        // group array of Country objects by their Country.region using a dictionary
+        let groupedCountries = Dictionary(grouping: countries) { $0.region }
+        
+        // use .map to transform array of dictionary into array of Region()
         countriesByRegion = groupedCountries.map { (region, countries) in
             return Region(region: region, countries: countries)
         }
+        // sort countriesByRegion in alphabetical order by their region
         countriesByRegion.sort { (a, b) -> Bool in
             return a.region! < b.region!
         }
