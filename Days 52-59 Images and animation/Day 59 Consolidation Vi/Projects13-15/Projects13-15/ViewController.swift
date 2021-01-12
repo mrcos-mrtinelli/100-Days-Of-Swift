@@ -10,15 +10,39 @@ import UIKit
 class ViewController: UITableViewController {
     var countries = [Country]()
     var regions = [String]()
-    var countriesByRegion = [String: [Country]]()
+    var countriesByRegion = [Region]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Coutry Facts"
+        title = "Loading Countries..."
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        // make this run in the background
+        getCountries()
+    }
+    // Table Data
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return countriesByRegion.count
+    }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let numOfCountries = countriesByRegion[section]
+        return numOfCountries.countries.count
+    }
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let title = countriesByRegion[section].region
+        return title
+    }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CountryCell", for: indexPath)
+        let region = countriesByRegion[indexPath.section]
+        let country = region.countries[indexPath.row]
+        
+        cell.textLabel?.text = country.name
+        
+        return cell
+    }
+    // Custom Functions
+    func getCountries() {
         let urlString = "https://restcountries.eu/rest/v2/all"
         
         if let url = URL(string: urlString) {
@@ -31,39 +55,14 @@ class ViewController: UITableViewController {
                     self.countries = self.parseCountries(unwrappedData)
                     
                     DispatchQueue.main.async {
-                        for country in self.countries {
-                            if !self.regions.contains(country.region) {
-                                self.regions.append(country.region)
-                            }
-                        }
-                        
-                        self.tableView.reloadData()
+                        self.updateUI()
                     }
                     
                 }
             }
             task.resume()
         }
-        // end background
     }
-//    override func numberOfSections(in tableView: UITableView) -> Int {
-//        return regions.count
-//    }
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return countries.count
-    }
-//    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        let title = regions[section]
-//        return title
-//    }
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CountryCell", for: indexPath)
-        
-        
-        cell.textLabel?.text = countries[indexPath.row].name
-        return cell
-    }
-    
     func parseCountries(_ jsonData: Data) -> [Country] {
         let decoder = JSONDecoder()
         
@@ -74,6 +73,23 @@ class ViewController: UITableViewController {
             print(error)
         }
         return [Country]()
+    }
+    func sortByRegions() {
+        // https://www.hackingwithswift.com/example-code/language/how-to-group-arrays-using-dictionaries\
+        // https://www.ralfebert.de/ios-examples/uikit/uitableviewcontroller/grouping-sections/
+        let groupedCountries = Dictionary(grouping: countries) { $0.region  }
+        
+        countriesByRegion = groupedCountries.map { (region, countries) in
+            return Region(region: region, countries: countries)
+        }
+        countriesByRegion.sort { (a, b) -> Bool in
+            return a.region! < b.region!
+        }
+    }
+    func updateUI() {
+        sortByRegions()
+        title = "Country Facts"
+        tableView.reloadData()
     }
 }
 

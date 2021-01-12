@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D565BBA25AD524300850F3C /* Region.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D565BB925AD524300850F3C /* Region.swift */; };
 		8D80CBC025AA493B002651B6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D80CBBF25AA493B002651B6 /* AppDelegate.swift */; };
 		8D80CBC225AA493B002651B6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D80CBC125AA493B002651B6 /* SceneDelegate.swift */; };
 		8D80CBC425AA493B002651B6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D80CBC325AA493B002651B6 /* ViewController.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8D565BB925AD524300850F3C /* Region.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Region.swift; sourceTree = "<group>"; };
 		8D80CBBC25AA493B002651B6 /* Projects13-15.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Projects13-15.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D80CBBF25AA493B002651B6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8D80CBC125AA493B002651B6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				8D80CBBF25AA493B002651B6 /* AppDelegate.swift */,
 				8D80CBC125AA493B002651B6 /* SceneDelegate.swift */,
 				8D80CBC325AA493B002651B6 /* ViewController.swift */,
+				8D565BB925AD524300850F3C /* Region.swift */,
 				8DD2B54F25ABD28100BAD54A /* Country.swift */,
 				8D80CBC525AA493B002651B6 /* Main.storyboard */,
 				8D80CBC825AA493B002651B6 /* Assets.xcassets */,
@@ -143,6 +146,7 @@
 				8D80CBC425AA493B002651B6 /* ViewController.swift in Sources */,
 				8D80CBC025AA493B002651B6 /* AppDelegate.swift in Sources */,
 				8DD2B55025ABD28100BAD54A /* Country.swift in Sources */,
+				8D565BBA25AD524300850F3C /* Region.swift in Sources */,
 				8D80CBC225AA493B002651B6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
