@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D565BB725AD226C00850F3C /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D565BB625AD226C00850F3C /* WebViewViewController.swift */; };
 		8DD2B53725ABC2ED00BAD54A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD2B53625ABC2ED00BAD54A /* AppDelegate.swift */; };
 		8DD2B53925ABC2ED00BAD54A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD2B53825ABC2ED00BAD54A /* SceneDelegate.swift */; };
 		8DD2B53B25ABC2ED00BAD54A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD2B53A25ABC2ED00BAD54A /* ViewController.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8D565BB625AD226C00850F3C /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
 		8DD2B53325ABC2ED00BAD54A /* Project16.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Project16.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DD2B53625ABC2ED00BAD54A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8DD2B53825ABC2ED00BAD54A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 				8DD2B53A25ABC2ED00BAD54A /* ViewController.swift */,
 				8DD2B54B25ABC4E900BAD54A /* Capital.swift */,
 				8DD2B53C25ABC2ED00BAD54A /* Main.storyboard */,
+				8D565BB625AD226C00850F3C /* WebViewViewController.swift */,
 				8DD2B53F25ABC2EE00BAD54A /* Assets.xcassets */,
 				8DD2B54125ABC2EE00BAD54A /* LaunchScreen.storyboard */,
 				8DD2B54425ABC2EE00BAD54A /* Info.plist */,
@@ -140,6 +143,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D565BB725AD226C00850F3C /* WebViewViewController.swift in Sources */,
 				8DD2B53B25ABC2ED00BAD54A /* ViewController.swift in Sources */,
 				8DD2B53725ABC2ED00BAD54A /* AppDelegate.swift in Sources */,
 				8DD2B54C25ABC4E900BAD54A /* Capital.swift in Sources */,
