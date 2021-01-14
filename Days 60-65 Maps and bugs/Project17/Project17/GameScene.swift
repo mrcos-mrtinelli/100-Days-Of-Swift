@@ -15,7 +15,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
     
     var possibleEnemies = ["ball", "hammer", "tv"]
+    var enemiesCreated = 0
     var gameTimer: Timer?
+    var timeInterval = 0.35
     var isGameOver = false
     
     var score = 0 {
@@ -23,6 +25,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             scoreLabel.text = "Score: \(score)"
         }
     }
+    
     // CLASS FUNCTIONS
     override func didMove(to view: SKView) {
         // CONFIGURE BACKGROUND
@@ -57,8 +60,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         
-        // CONFIGURE ENEMY CREATING TIMER
-        gameTimer = Timer.scheduledTimer(timeInterval: 0.35, target: self, selector: #selector(createEnemy), userInfo: nil, repeats: true)
+        // CHALLENGE: Start game timer after 1 second
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { [weak self] _ in
+            self!.startTimer(withInterval: self!.timeInterval)
+        }
         
     }
     override func update(_ currentTime: TimeInterval) {
@@ -85,6 +90,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // set the player's position to the location of the touch
         player.position = location
     }
+    // CHALLENGE: Prevent player from cheating by touching a different area of the game
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // reset player position to it's original position
+        player.position = CGPoint(x: 100, y: 384)
+    }
     func didBegin(_ contact: SKPhysicsContact) {
         // what to do when the player collides
         let explosion = SKEmitterNode(fileNamed: "explosion")!
@@ -93,10 +103,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(explosion)
         player.removeFromParent()
         isGameOver = true
+        
+        gameTimer?.invalidate()
     }
     // GAME FUNCTIONS
     @objc func createEnemy() {
         guard let enemy = possibleEnemies.randomElement() else { return }
+        
+        enemiesCreated += 1
         
         let sprite = SKSpriteNode(imageNamed: enemy)
         sprite.position = CGPoint(x: 1200, y: Int.random(in: 50...736))
@@ -112,5 +126,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         sprite.physicsBody?.angularDamping = 0
         
         addChild(sprite)
+        
+        if enemiesCreated > 20 {
+            enemiesCreated = 0
+            
+            gameTimer?.invalidate()
+            startTimer(withInterval: timeInterval - 0.1)
+        }
+    }
+    @objc func startTimer(withInterval interval: Double = 0.35 ) {
+        gameTimer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(createEnemy), userInfo: [], repeats: true)
     }
 }
