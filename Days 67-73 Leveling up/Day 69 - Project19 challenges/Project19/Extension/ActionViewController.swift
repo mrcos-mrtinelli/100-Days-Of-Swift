@@ -42,7 +42,7 @@ class ActionViewController: UIViewController {
                     guard let jsValues = itemDict[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary else { return }
                     
                     self?.pageTitle = jsValues["title"] as? String ?? ""
-                    self?.pageURL = jsValues["url"] as? String ?? ""
+                    self?.pageURL = jsValues["URL"] as? String ?? ""
                     
                     DispatchQueue.main.async {
                         self?.title = "Script Editor"
@@ -121,33 +121,32 @@ class ActionViewController: UIViewController {
             present(ac, animated: true)
             return
         }
-        let scriptURL = URL(string: pageURL)
-        let scriptName = getScriptName()
-        let scriptContent = """
-        \(script.text!)
-        """
+        guard let scriptURL = URL(string: pageURL) else { return }
+        guard let userScript = script.text else { return }
+        var scriptName = ""
         
-        print(scriptURL?.absoluteString, scriptName, scriptContent)
+        let scriptNameAC = UIAlertController(title: "Enter Script Name", message: nil, preferredStyle: .alert)
+        let submitAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak scriptNameAC] _ in
+            if let name = scriptNameAC?.textFields![0].text {
+                scriptName = name
+                self?.setUserDefaults(url: scriptURL, name: scriptName, script: userScript)
+            }
+        }
         
+        scriptNameAC.addTextField(configurationHandler: nil)
+        scriptNameAC.addAction(submitAction)
+        scriptNameAC.addAction(UIAlertAction(title: "Cancel", style: .default, handler: nil))
+        
+        present(scriptNameAC, animated: true)
     }
     @objc func loadScript(action: UIAlertAction) {
         
     }
-    func getScriptName() -> String {
-        var scriptName = ""
-        let ac = UIAlertController(title: "Enter script's name", message: nil, preferredStyle: .alert)
-        let submit = UIAlertAction(title: "Save", style: .default) { [weak ac] _ in
-            if let name = ac?.textFields![0].text {
-                scriptName = name
-            } else {
-                scriptName = ""
-            }
-        }
-        
-        ac.addTextField(configurationHandler: nil)
-        ac.addAction(submit)
-        present(ac, animated: true)
-        
-        return scriptName
+    func setUserDefaults(url: URL, name: String, script: String) {
+        print("""
+        url: \(url)
+        name: \(name)
+        script: \(script)
+        """)
     }
 }
