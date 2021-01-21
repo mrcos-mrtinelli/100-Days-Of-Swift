@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D01E51425B9386000A24E5B /* LoadedScriptsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D01E51325B9386000A24E5B /* LoadedScriptsViewController.swift */; };
 		8D0950A125B7B58E006F6563 /* UserScripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0950A025B7B58E006F6563 /* UserScripts.swift */; };
 		8D472A1A25B4D502005FF927 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D472A1925B4D502005FF927 /* AppDelegate.swift */; };
 		8D472A1C25B4D502005FF927 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D472A1B25B4D502005FF927 /* SceneDelegate.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8D01E51325B9386000A24E5B /* LoadedScriptsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadedScriptsViewController.swift; sourceTree = "<group>"; };
 		8D0950A025B7B58E006F6563 /* UserScripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserScripts.swift; sourceTree = "<group>"; };
 		8D472A1625B4D502005FF927 /* Project19.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Project19.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D472A1925B4D502005FF927 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 			children = (
 				8D472A3425B4D6A2005FF927 /* Media.xcassets */,
 				8D472A3625B4D6A2005FF927 /* ActionViewController.swift */,
+				8D01E51325B9386000A24E5B /* LoadedScriptsViewController.swift */,
 				8D0950A025B7B58E006F6563 /* UserScripts.swift */,
 				8D472A3825B4D6A2005FF927 /* MainInterface.storyboard */,
 				8D472A3B25B4D6A2005FF927 /* Info.plist */,
@@ -240,6 +243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D472A3725B4D6A2005FF927 /* ActionViewController.swift in Sources */,
+				8D01E51425B9386000A24E5B /* LoadedScriptsViewController.swift in Sources */,
 				8D0950A125B7B58E006F6563 /* UserScripts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -15,9 +15,13 @@ class ActionViewController: UIViewController {
     var pageTitle = ""
     var pageURL = ""
     var userScripts = [UserScripts]()
+    var userScriptsForURL = [UserScripts]()
+    var loadedScriptsVC = LoadedScriptsViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        loadedScriptsVC.delegate = self
         
         // CHALLENGE
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
@@ -46,12 +50,38 @@ class ActionViewController: UIViewController {
                     
                     DispatchQueue.main.async {
                         self?.title = "Script Editor"
+                        self?.loadSavedScripts(urlString: self?.pageURL ?? "")
                     }
                 }
             }
         }
     }
-    
+    func loadSavedScripts(urlString: String) {
+        let defaults = UserDefaults.standard
+        if let loadedData = defaults.object(forKey: "UserScripts") as? Data {
+            let decoder = JSONDecoder()
+            if let decodedData = try? decoder.decode([UserScripts].self, from: loadedData) {
+                userScripts = decodedData
+            }
+        }
+        
+        guard let currentURL = URL(string: pageURL) else { return }
+        userScriptsForURL = userScripts.filter({ script in
+            script.url.host == currentURL.host
+        })
+        print("userScripptForURL count: \(userScriptsForURL.count)")
+    }
+    func saveToUserDefaults(url: URL, name: String, script: String) {
+        let newScript = UserScripts(url: url, name: name, script: script)
+        let encoder = JSONEncoder()
+        
+        userScripts.append(newScript)
+        
+        if let encoded = try? encoder.encode(userScripts) {
+            let defaults = UserDefaults.standard
+            defaults.setValue(encoded, forKey: "UserScripts")
+        }
+    }
     @objc func adjustForKeyboard(notification: Notification) {
         guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         
@@ -83,7 +113,7 @@ class ActionViewController: UIViewController {
         let ac = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let scriptSnippetsButton = UIAlertAction(title: "JS Script Examples", style: .default, handler: selectScriptSnippets)
-        let saveScriptButton = UIAlertAction(title: "Save your script", style: .default, handler: saveScript)
+        let saveScriptButton = UIAlertAction(title: "Save your script", style: .default, handler: saveScriptTapped)
         let loadScriptButton = UIAlertAction(title: "Load saved script", style: .default, handler: loadScript)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
@@ -114,22 +144,33 @@ class ActionViewController: UIViewController {
         
         present(ac, animated: true)
     }
-    @objc func saveScript(action: UIAlertAction) {
+    @objc func saveScriptTapped(action: UIAlertAction) {
+        // case blank script
         guard script.text != "" else {
             let ac = UIAlertController(title: "Can't save blank script", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(ac, animated: true)
             return
         }
+        
         guard let scriptURL = URL(string: pageURL) else { return }
         guard let userScript = script.text else { return }
         var scriptName = ""
         
         let scriptNameAC = UIAlertController(title: "Enter Script Name", message: nil, preferredStyle: .alert)
         let submitAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak scriptNameAC] _ in
-            if let name = scriptNameAC?.textFields![0].text {
+            if var name = scriptNameAC?.textFields![0].text {
+                
+                if name == "" {
+                    let today = Date()
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .short
+                    
+                    name = "Unnamed script (\(formatter.string(from: today)))"
+                }
+                
                 scriptName = name
-                self?.setUserDefaults(url: scriptURL, name: scriptName, script: userScript)
+                self?.saveToUserDefaults(url: scriptURL, name: scriptName, script: userScript)
             }
         }
         
@@ -140,13 +181,15 @@ class ActionViewController: UIViewController {
         present(scriptNameAC, animated: true)
     }
     @objc func loadScript(action: UIAlertAction) {
-        
+        if let vc = storyboard?.instantiateViewController(identifier: "TableView") as? LoadedScriptsViewController {
+            vc.availableScripts = userScriptsForURL
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
-    func setUserDefaults(url: URL, name: String, script: String) {
-        print("""
-        url: \(url)
-        name: \(name)
-        script: \(script)
-        """)
+}
+
+extension ActionViewController: LoadedScriptsViewControllerDelegate {
+    func insertScript(insertScript: String) {
+        self.script.text = insertScript
     }
 }
