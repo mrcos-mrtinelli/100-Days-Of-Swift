@@ -12,6 +12,7 @@ class GameScene: SKScene {
     
     var gameTimer: Timer?
     var fireworks = [SKNode]()
+    var launchFireworksCount = 0
     
     let leftEdge = -22
     let bottomEdge = -22
@@ -82,6 +83,15 @@ class GameScene: SKScene {
         addChild(node)
     }
     @objc func launchFireworks() {
+        
+        // challenge
+        launchFireworksCount += 1
+        
+        if launchFireworksCount > 10 {
+            gameTimer?.invalidate()
+        }
+        
+        
         let movementAmount: CGFloat = 1800
         
         switch Int.random(in: 0...3) {
@@ -149,6 +159,46 @@ class GameScene: SKScene {
                 fireworks.remove(at: index)
                 firework.removeFromParent()
             }
+        }
+    }
+    func explode(firework: SKNode) {
+        if let emitter = SKEmitterNode(fileNamed: "explode") {
+            emitter.position = firework.position
+            addChild(emitter)
+            
+            // challenge
+            let waitAction = SKAction.wait(forDuration: 3)
+            let removeAction = SKAction.removeFromParent()
+            let actionSequence = SKAction.sequence([waitAction, removeAction])
+            emitter.run(actionSequence)
+        }
+        firework.removeFromParent()
+    }
+    func explodeFireworks() {
+        var numExploded = 0
+        
+        for (index, fireworkContainer) in fireworks.enumerated().reversed() {
+            guard let firework = fireworkContainer.children.first as? SKSpriteNode else { return }
+            
+            if firework.name == "selected" {
+                explode(firework: fireworkContainer)
+                fireworks.remove(at: index)
+                numExploded += 1
+            }
+        }
+        switch numExploded {
+        case 0:
+            break
+        case 1:
+            score += 200
+        case 2:
+            score += 500
+        case 3:
+            score += 1500
+        case 4:
+            score += 2500
+        default:
+            score += 4000
         }
     }
 }
