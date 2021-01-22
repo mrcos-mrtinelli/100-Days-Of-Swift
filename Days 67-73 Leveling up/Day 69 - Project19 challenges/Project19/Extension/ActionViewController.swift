@@ -16,12 +16,9 @@ class ActionViewController: UIViewController {
     var pageURL = ""
     var userScripts = [UserScripts]()
     var userScriptsForURL = [UserScripts]()
-    var loadedScriptsVC = LoadedScriptsViewController()
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        loadedScriptsVC.delegate = self
         
         // CHALLENGE
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
@@ -183,13 +180,13 @@ class ActionViewController: UIViewController {
     @objc func loadScript(action: UIAlertAction) {
         if let vc = storyboard?.instantiateViewController(identifier: "TableView") as? LoadedScriptsViewController {
             vc.availableScripts = userScriptsForURL
+            vc.delegate = self
             navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
-
-extension ActionViewController: LoadedScriptsViewControllerDelegate {
-    func insertScript(insertScript: String) {
-        self.script.text = insertScript
+extension ActionViewController: LoadedScriptDelegate {
+    func loadSavedScript(_ loader: LoadedScriptsViewController, savedScript: String) {
+        script.text = savedScript
     }
 }

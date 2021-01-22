@@ -5,16 +5,15 @@
 //  Created by Marcos Martinelli on 1/20/21.
 //
 
-protocol LoadedScriptsViewControllerDelegate {
-    func insertScript(insertScript: String)
-}
-
 import UIKit
+
+protocol LoadedScriptDelegate {
+    func loadSavedScript(_ loader: LoadedScriptsViewController, savedScript: String)
+}
 
 class LoadedScriptsViewController: UITableViewController {
     
-    var delegate: LoadedScriptsViewControllerDelegate?
-    
+    var delegate: LoadedScriptDelegate?
     var availableScripts = [UserScripts]()
     
     override func viewDidLoad() {
@@ -37,10 +36,7 @@ class LoadedScriptsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let script = availableScripts[indexPath.row].script
         
-        DispatchQueue.main.async {
-            self.delegate?.insertScript(insertScript: script)
-        }
-        
+        delegate?.loadSavedScript(self, savedScript: script)
         navigationController?.popViewController(animated: true)
     }
 
