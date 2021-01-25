@@ -15,14 +15,27 @@ class MainTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let spacer = UIBarButtonItem(systemItem: .flexibleSpace)
+        let newFolderIcon = UIImage(systemName: "folder.badge.plus")
+        let newFolder = UIBarButtonItem(image: newFolderIcon, style: .plain, target: self, action: #selector(addFolderTapped))
+        let newNoteIcon = UIImage(systemName: "square.and.pencil")
+        let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(addNoteTapped))
+        
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.setToolbarHidden(false, animated: false)
+        navigationController?.isToolbarHidden = false
+        toolbarItems = [newFolder, spacer, newNote]
         title = "Notes"
+        
         
         notesManager.delegate = self
         notesManager.load()
     }
-    
+    @objc func addFolderTapped() {
+        print("addFolder")
+    }
+    @objc func addNoteTapped() {
+        print("addNote")
+    }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return allNotes.count
     }
