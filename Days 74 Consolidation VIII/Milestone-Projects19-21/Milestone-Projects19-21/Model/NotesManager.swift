@@ -9,6 +9,8 @@ import Foundation
 
 protocol NotesManagerDelegate {
     func didLoadNotes(_ notesManager: NotesManager, notes: [Folder])
+    func updateUI()
+    func didAddNewFolder(newFolder: Folder, index: Int)
 }
 
 struct NotesManager {
@@ -44,7 +46,32 @@ struct NotesManager {
         
         delegate?.didLoadNotes(self, notes: notes)
     }
-    func save() {
+    func save(_ allNotes: [Folder]) {
+        print("save(newFolder)")
+    }
+    
+    func addNewFolder(_ name: String, to folders: [Folder]) {
+        let newFolder = Folder(name: name, notes: [Note]())
+        var allFolders = folders
+        allFolders.append(newFolder)
         
+        let sortedFolders = sortFolders(folders: allFolders)
+        let index = sortedFolders.firstIndex { (folder) in
+            return folder.name == newFolder.name
+        }
+        
+        save(sortedFolders)
+        
+        delegate?.didAddNewFolder(newFolder: newFolder, index: index!)
+    }
+    func sortFolders(folders: [Folder]) -> [Folder] {
+        var mutableFolders = folders
+        let allNotesFolder = mutableFolders.removeFirst()
+        var sortedFolders = mutableFolders.sorted { (a, b) in
+            return a.name < b.name
+        }
+        sortedFolders.insert(allNotesFolder, at: 0)
+        
+        return sortedFolders
     }
 }

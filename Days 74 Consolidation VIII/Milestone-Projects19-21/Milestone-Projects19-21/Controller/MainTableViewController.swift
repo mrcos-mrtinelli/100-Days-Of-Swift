@@ -31,11 +31,36 @@ class MainTableViewController: UITableViewController {
         notesManager.load()
     }
     @objc func addFolderTapped() {
-        print("addFolder")
+        let ac = UIAlertController(title: "New Folder", message: "Enter a name for this folder.", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let submit = UIAlertAction(title: "Save", style: .default) { [weak self, weak ac] _ in
+            guard let name = ac!.textFields![0].text else { return }
+            
+            // update this to disable/enable Save button based on name
+            if name != "" {
+                guard let notes = self?.allNotes else { return }
+                self?.notesManager.addNewFolder(name, to: notes)
+            } else {
+                let warning = UIAlertController(title: "Error", message: "You must enter a name for your folder.", preferredStyle: .alert)
+                warning.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self?.present(warning, animated: true, completion: nil)
+            }
+        }
+        ac.addTextField { (textField) in
+            // https://stackoverflow.com/questions/31922349/how-to-add-textfield-to-uialertcontroller-in-swift
+            textField.placeholder = "Name"
+        }
+        ac.addAction(cancel)
+        ac.addAction(submit)
+        
+        present(ac, animated: true)
+        
     }
     @objc func addNoteTapped() {
         print("addNote")
     }
+    
+    //MARK: tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return allNotes.count
     }
@@ -56,7 +81,15 @@ class MainTableViewController: UITableViewController {
 extension MainTableViewController: NotesManagerDelegate {
     func didLoadNotes(_ notesManager: NotesManager, notes: [Folder]) {
         allNotes = notes
+        updateUI()
+    }
+    func updateUI() {
         tableView.reloadData()
+    }
+    func didAddNewFolder(newFolder: Folder, index: Int) {
+        allNotes.insert(newFolder, at: index)
+        let indexPath = IndexPath(row: index, section: 0)
+        tableView.insertRows(at: [indexPath], with: .automatic)
     }
 }
 
