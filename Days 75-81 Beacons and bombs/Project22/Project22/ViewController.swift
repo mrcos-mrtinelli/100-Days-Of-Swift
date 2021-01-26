@@ -12,6 +12,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet var distanceReading: UILabel!
     var locationManager: CLLocationManager?
+    var didFirstDectetion = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +24,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // unknown location - set bg color
         view.backgroundColor = .gray
     }
+    //MARK: locationManager
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == .authorizedAlways {
             if CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
@@ -32,6 +34,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
+    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+        if let beacon = beacons.first {
+            update(distance: beacon.proximity)
+            //challenge
+            firstDetection()
+        } else {
+            update(distance: .unknown)
+        }
+    }
+    //MARK: project functions
     func startScanning() {
         let uuid = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
         let beaconRegion = CLBeaconRegion(proximityUUID: uuid, major: 123, minor: 456, identifier: "MyBeacon")
@@ -59,11 +71,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
-    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        if let beacon = beacons.first {
-            update(distance: beacon.proximity)
-        } else {
-            update(distance: .unknown)
+    //challenge 1
+    func firstDetection() {
+        if !didFirstDectetion {
+            let ac = UIAlertController(title: "Beacon Detected", message: "We found you a beacon.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            didFirstDectetion = !didFirstDectetion
+            present(ac, animated: true)
         }
     }
 }
