@@ -29,7 +29,8 @@ class MainTableViewController: UITableViewController {
         
         notesManager.delegate = self
         notesManager.load()
-    }//MARK: tableView
+    }
+    //MARK: tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return allFolders.count
     }
@@ -55,25 +56,29 @@ class MainTableViewController: UITableViewController {
     @objc func addFolderTapped() {
         let ac = UIAlertController(title: "New Folder", message: "Enter a name for this folder.", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
         let submit = UIAlertAction(title: "Save", style: .default) { [weak self, weak ac] _ in
             guard let name = ac!.textFields![0].text else { return }
+            guard let notes = self?.allFolders else { return }
             
-            // update this to disable/enable Save button based on name
-            if name != "" {
-                guard let notes = self?.allFolders else { return }
-                self?.notesManager.addNewFolder(name, to: notes)
-            } else {
-                let warning = UIAlertController(title: "Error", message: "You must enter a name for your folder.", preferredStyle: .alert)
-                warning.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self?.present(warning, animated: true, completion: nil)
-            }
+            self?.notesManager.addNewFolder(name, to: notes)
         }
         
         ac.addTextField { (textField) in
             // https://stackoverflow.com/questions/31922349/how-to-add-textfield-to-uialertcontroller-in-swift
             textField.placeholder = "Name"
+            
+            // https://gist.github.com/TheCodedSelf/c4f3984dd9fcc015b3ab2f9f60f8ad51
+            NotificationCenter.default.addObserver(forName: UITextField.textDidChangeNotification, object: textField, queue: .main) { _ in
+                if textField.hasText {
+                    submit.isEnabled = true
+                } else {
+                    submit.isEnabled = false
+                }
+            }
         }
         ac.addAction(cancel)
+        submit.isEnabled = false
         ac.addAction(submit)
         
         present(ac, animated: true)
@@ -83,7 +88,6 @@ class MainTableViewController: UITableViewController {
         
     }
 }
-
 
 //MARK: NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
@@ -97,4 +101,13 @@ extension MainTableViewController: NotesManagerDelegate {
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
 }
+
+//MARK: UITextFieldDelegate
+//extension MainTableViewController: UITextFieldDelegate {
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        if textField.hasText {
+//
+//        }
+//    }
+//}
 
