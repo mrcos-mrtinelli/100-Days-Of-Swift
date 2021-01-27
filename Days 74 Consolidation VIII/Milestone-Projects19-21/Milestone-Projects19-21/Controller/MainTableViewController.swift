@@ -12,9 +12,6 @@ class MainTableViewController: UITableViewController {
     var notesManager = NotesManager()
     var allFolders = [Folder]()
 
-    override func viewDidAppear(_ animated: Bool) {
-        notesManager.load()
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -29,10 +26,10 @@ class MainTableViewController: UITableViewController {
         toolbarItems = [newFolder, spacer, newNote]
         title = "Folders"
         
-        
         notesManager.delegate = self
+        notesManager.loadAllFolders()
     }
-    //MARK: tableView
+    //MARK: - tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return allFolders.count
     }
@@ -54,7 +51,7 @@ class MainTableViewController: UITableViewController {
         }
     }
     
-    //MARK: toolBar
+    //MARK: - toolBar
     @objc func addFolderTapped() {
         let ac = UIAlertController(title: "New Folder", message: "Enter a name for this folder.", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -87,15 +84,16 @@ class MainTableViewController: UITableViewController {
     }
     @objc func addNoteTapped() {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-                noteDetail.folderID = allFolders[0].id // All Notes is always 0 index
-                noteDetail.body = ""
-                
-                navigationController?.pushViewController(noteDetail, animated: true)
+            noteDetail.delegate = self
+            noteDetail.folderID = allFolders[0].id // All Notes is always 0 index
+            noteDetail.body = ""
+            
+            navigationController?.pushViewController(noteDetail, animated: true)
         }
     }
 }
 
-//MARK: NotesManagerDelegate
+//MARK: - NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder]) {
         allFolders = folders
@@ -107,7 +105,11 @@ extension MainTableViewController: NotesManagerDelegate {
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
     func didSave() {
-        print("didSave - main")
+        notesManager.loadAllFolders()
     }
 }
-
+extension MainTableViewController: NoteDetailViewControllerDelegate {
+    func addNewNote(note: String, folderID: UUID) {
+        notesManager.addNew(note: note, folderID: folderID)
+    }
+}

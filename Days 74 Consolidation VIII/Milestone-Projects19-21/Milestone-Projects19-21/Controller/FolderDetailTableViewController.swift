@@ -14,6 +14,14 @@ class FolderDetailTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let spacer = UIBarButtonItem(systemItem: .flexibleSpace)
+        let newNoteIcon = UIImage(systemName: "square.and.pencil")
+        let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(addNoteTapped))
+        
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.isToolbarHidden = false
+        toolbarItems = [spacer, newNote]
+        
         title = folder.name
         // Uncomment the following line to preserve selection between presentations
 //         self.clearsSelectionOnViewWillAppear = false
@@ -44,14 +52,36 @@ class FolderDetailTableViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
+            noteDetail.delegate = self
             noteDetail.body = folder.notes[indexPath.row].body
             noteDetail.folderID = folder.id
             
             navigationController?.pushViewController(noteDetail, animated: true)
         }
     }
-    func updateUI() {
+    @objc func addNoteTapped() {
+        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
+            noteDetail.delegate = self
+            noteDetail.folderID = folder.id
+            noteDetail.body = ""
+            
+            navigationController?.pushViewController(noteDetail, animated: true)
+        }
+    }
+}
+extension FolderDetailTableViewController: NotesManagerDelegate {
+    func didSave() {
+        let currentFolderID = folder.id
+        
+        notesManager.loadFolderContents(folderID: currentFolderID)
+    }
+    func didLoadFolderContent(folder: Folder) {
+        self.folder = folder
         tableView.reloadData()
     }
-
+}
+extension FolderDetailTableViewController: NoteDetailViewControllerDelegate {
+    func addNewNote(note: String, folderID: UUID) {
+        notesManager.addNew(note: note, folderID: folderID)
+    }
 }

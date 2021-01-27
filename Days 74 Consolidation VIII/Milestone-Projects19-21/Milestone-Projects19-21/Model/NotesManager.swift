@@ -11,6 +11,13 @@ protocol NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder])
     func didAddNew(folder: Folder, at index: Int)
     func didSave()
+    func didLoadFolderContent(folder: Folder)
+}
+extension NotesManagerDelegate {
+    func didLoad(_ notesManager: NotesManager, folders: [Folder]) {}
+    func didAddNew(folder: Folder, at index: Int) {}
+    func didSave() {}
+    func didLoadFolderContent(folder: Folder) {}
 }
 
 struct NotesManager {
@@ -55,7 +62,6 @@ struct NotesManager {
         print("saved!")
         
         delegate?.didSave()
-        
     }
     func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
@@ -74,21 +80,33 @@ struct NotesManager {
                     """)
         return [Folder(id: UUID(), name: "All Notes", notes: [firstNote])]
     }
-    func load() {
+    func loadAllFolders() {
         let folders = getSavedData()
         
         delegate?.didLoad(self, folders: folders)
     }
+    func loadFolderContents(folderID: UUID) {
+        let allFolders = getSavedData()
+        let index = getFolderIndex(for: folderID, in: allFolders)
+        
+        delegate?.didLoadFolderContent(folder: allFolders[index])
+    }
+    func getFolderIndex(for folderID: UUID, in folders: [Folder]) -> Int {
+        if let folderIndex = folders.firstIndex(where: {(folder) in folder.id == folderID}) {
+            return folderIndex
+        }
+        return 0
+    }
     //MARK: Folder and Note Utilities
     func addNew(note: String, folderID: UUID) {
         var savedData = getSavedData()
-
-        if let folderIndex = savedData.firstIndex(where: {(folder) in folder.id == folderID}) {
-            let newNote = Note(body: note)
-            savedData[folderIndex].notes.append(newNote)
-            
-            save(folders: savedData)
-        }
+        
+        let index = getFolderIndex(for: folderID, in: savedData)
+        let newNote = Note(body: note)
+        
+        savedData[index].notes.append(newNote)
+        
+        save(folders: savedData)
     }
     
     func addNew(folder name: String) {
@@ -117,3 +135,4 @@ struct NotesManager {
         return sortedFolders
     }
 }
+
