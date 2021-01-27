@@ -30,14 +30,15 @@ class FolderDetailTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NoteCell", for: indexPath)
         let note = folder.notes[indexPath.row]
-        cell.textLabel?.text = note.body
+        let noteComponents = note.body.components(separatedBy: "\n")
+        cell.textLabel?.text = noteComponents.first
+        cell.detailTextLabel?.text = noteComponents[1]
 
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
             noteDetail.body = folder.notes[indexPath.row].body
-            
             navigationController?.pushViewController(noteDetail, animated: true)
         }
     }

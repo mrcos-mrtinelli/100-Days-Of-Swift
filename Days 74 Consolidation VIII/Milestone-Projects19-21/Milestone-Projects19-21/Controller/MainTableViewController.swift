@@ -85,13 +85,15 @@ class MainTableViewController: UITableViewController {
         
     }
     @objc func addNoteTapped() {
-        
+        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
+            navigationController?.pushViewController(noteDetail, animated: true)
+        }
     }
 }
 
 //MARK: NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
-    func didLoadNotes(_ notesManager: NotesManager, folders: [Folder]) {
+    func didUpdateNotes(_ notesManager: NotesManager, folders: [Folder]) {
         allFolders = folders
         tableView.reloadData()
     }
@@ -101,13 +103,4 @@ extension MainTableViewController: NotesManagerDelegate {
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
 }
-
-//MARK: UITextFieldDelegate
-//extension MainTableViewController: UITextFieldDelegate {
-//    func textFieldDidBeginEditing(_ textField: UITextField) {
-//        if textField.hasText {
-//
-//        }
-//    }
-//}
 
