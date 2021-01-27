@@ -80,7 +80,7 @@ class MainTableViewController: UITableViewController {
         
     }
     @objc func addNoteTapped() {
-        print("addNote")
+        
     }
 }
 
