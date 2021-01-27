@@ -8,6 +8,5 @@
 import Foundation
 
 struct Note: Codable {
-    var folder: String
     var body: String
 }

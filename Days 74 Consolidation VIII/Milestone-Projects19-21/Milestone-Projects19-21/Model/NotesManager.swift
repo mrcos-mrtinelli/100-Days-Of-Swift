@@ -9,7 +9,6 @@ import Foundation
 
 protocol NotesManagerDelegate {
     func didLoadNotes(_ notesManager: NotesManager, notes: [Folder])
-    func updateUI()
     func didAddNewFolder(newFolder: Folder, index: Int)
 }
 
@@ -30,7 +29,6 @@ struct NotesManager {
         return [Folder]()
     }
     func load() {
-        print("Storage.load")
         let defaults = UserDefaults.standard
         var notes = [Folder]()
         
@@ -40,8 +38,12 @@ struct NotesManager {
                 notes = decodedData
             }
         } else {
-            print("no saved data found")
-            notes = [Folder(name: "All Notes", notes: [Note]())]
+            let firstNote = Note(body: """
+                    This is a notes with multiple lines.
+                    line two is on a different line.
+                    line three is on yet another different line.
+                    """)
+            notes = [Folder(name: "All Notes", notes: [firstNote])]
         }
         
         delegate?.didLoadNotes(self, notes: notes)

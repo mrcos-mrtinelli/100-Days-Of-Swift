@@ -29,7 +29,29 @@ class MainTableViewController: UITableViewController {
         
         notesManager.delegate = self
         notesManager.load()
+    }//MARK: tableView
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return allNotes.count
     }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FolderCell", for: indexPath)
+        
+        if let folderCell = cell as? FolderCell {
+            folderCell.folderName.text = allNotes[indexPath.row].name
+            folderCell.notesCount.text = "\(allNotes[indexPath.row].notes.count)"
+            return folderCell
+        }
+        
+        return cell
+    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailTableViewController {
+            folderDetailVC.folder = allNotes[indexPath.row]
+            navigationController?.pushViewController(folderDetailVC, animated: true)
+        }
+    }
+    
+    //MARK: toolBar
     @objc func addFolderTapped() {
         let ac = UIAlertController(title: "New Folder", message: "Enter a name for this folder.", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -46,6 +68,7 @@ class MainTableViewController: UITableViewController {
                 self?.present(warning, animated: true, completion: nil)
             }
         }
+        
         ac.addTextField { (textField) in
             // https://stackoverflow.com/questions/31922349/how-to-add-textfield-to-uialertcontroller-in-swift
             textField.placeholder = "Name"
@@ -59,31 +82,13 @@ class MainTableViewController: UITableViewController {
     @objc func addNoteTapped() {
         print("addNote")
     }
-    
-    //MARK: tableView
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allNotes.count
-    }
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FolderCell", for: indexPath)
-        
-        if let folderCell = cell as? FolderCell {
-            folderCell.folderName.text = allNotes[indexPath.row].name
-            folderCell.notesCount.text = "\(allNotes[indexPath.row].notes.count)"
-            return folderCell
-        }
-        
-        return cell
-    }
 }
+
 
 //MARK: NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
     func didLoadNotes(_ notesManager: NotesManager, notes: [Folder]) {
         allNotes = notes
-        updateUI()
-    }
-    func updateUI() {
         tableView.reloadData()
     }
     func didAddNewFolder(newFolder: Folder, index: Int) {
