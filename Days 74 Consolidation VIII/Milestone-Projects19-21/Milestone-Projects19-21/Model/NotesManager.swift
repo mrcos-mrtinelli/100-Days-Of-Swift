@@ -9,7 +9,8 @@ import Foundation
 
 protocol NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder])
-    func didAddNewFolder(newFolder: Folder, index: Int)
+    func didAddNew(folder: Folder, at index: Int)
+    func didSave()
 }
 
 struct NotesManager {
@@ -17,6 +18,18 @@ struct NotesManager {
     
     var delegate: NotesManagerDelegate?
     
+    //MARK: - JSON Utilities
+    func encodeJSON(folders: [Folder]) -> Data? {
+        let jsonEncoder = JSONEncoder()
+        
+        do {
+            let encodedData = try jsonEncoder.encode(folders)
+            return encodedData
+        } catch {
+            print(error)
+            return nil
+        }
+    }
     func decodeJSON(_ data: Data) -> [Folder]? {
         let decoder = JSONDecoder()
         
@@ -27,7 +40,22 @@ struct NotesManager {
             print("Unable to decoded data.")
         }
         
-        return [Folder]()
+        return nil
+    }
+    //MARK: - Save and Load Utilities
+    func save(folders: [Folder]) {
+        
+        guard let encodedNotes = encodeJSON(folders: folders) else {
+            print("Error saving")
+            return
+        }
+
+        let defaults = UserDefaults.standard
+        defaults.set(encodedNotes, forKey: key)
+        print("saved!")
+        
+        delegate?.didSave()
+        
     }
     func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
@@ -51,25 +79,21 @@ struct NotesManager {
         
         delegate?.didLoad(self, folders: folders)
     }
-    func save(_ allNotes: [Folder]) {
-        let encoder = JSONEncoder()
-        
-        if let savedData = try? encoder.encode(allNotes) {
-            let defaults = UserDefaults.standard
-            defaults.set(savedData, forKey: key)
-            print("saved!")
-        } else {
-            print("error saving")
+    //MARK: Folder and Note Utilities
+    func addNew(note: String, folderID: UUID) {
+        var savedData = getSavedData()
+
+        if let folderIndex = savedData.firstIndex(where: {(folder) in folder.id == folderID}) {
+            let newNote = Note(body: note)
+            savedData[folderIndex].notes.append(newNote)
+            
+            save(folders: savedData)
         }
-        
     }
     
-    func addNewNote(folder: String) {
-        
-    }
-    
-    func addNewFolder(_ name: String, to folders: [Folder]) {
+    func addNew(folder name: String) {
         let newFolder = Folder(id: UUID(), name: name, notes: [Note]())
+        
         var allFolders = getSavedData()
         allFolders.append(newFolder)
         
@@ -78,9 +102,9 @@ struct NotesManager {
             return folder.id == newFolder.id
         }
         
-        save(sortedFolders)
+        save(folders: sortedFolders)
         
-        delegate?.didAddNewFolder(newFolder: newFolder, index: index!)
+        delegate?.didAddNew(folder: newFolder, at: index!)
     }
     func sortFolders(folders: [Folder]) -> [Folder] {
         var mutableFolders = folders

@@ -31,16 +31,27 @@ class FolderDetailTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NoteCell", for: indexPath)
         let note = folder.notes[indexPath.row]
         let noteComponents = note.body.components(separatedBy: "\n")
-        cell.textLabel?.text = noteComponents.first
-        cell.detailTextLabel?.text = noteComponents[1]
+        
+        if noteComponents.count > 1 {
+            cell.textLabel?.text = noteComponents.first
+            cell.detailTextLabel?.text = noteComponents[1]
+        } else {
+            cell.textLabel?.text = noteComponents.first
+            cell.detailTextLabel?.text = "No additional text"
+        }
 
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
             noteDetail.body = folder.notes[indexPath.row].body
+            noteDetail.folderID = folder.id
+            
             navigationController?.pushViewController(noteDetail, animated: true)
         }
+    }
+    func updateUI() {
+        tableView.reloadData()
     }
 
 }

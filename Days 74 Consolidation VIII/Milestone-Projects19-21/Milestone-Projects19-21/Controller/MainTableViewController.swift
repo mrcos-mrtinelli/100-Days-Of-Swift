@@ -12,6 +12,9 @@ class MainTableViewController: UITableViewController {
     var notesManager = NotesManager()
     var allFolders = [Folder]()
 
+    override func viewDidAppear(_ animated: Bool) {
+        notesManager.load()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -28,7 +31,6 @@ class MainTableViewController: UITableViewController {
         
         
         notesManager.delegate = self
-        notesManager.load()
     }
     //MARK: tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -59,9 +61,8 @@ class MainTableViewController: UITableViewController {
         
         let submit = UIAlertAction(title: "Save", style: .default) { [weak self, weak ac] _ in
             guard let name = ac!.textFields![0].text else { return }
-            guard let notes = self?.allFolders else { return }
             
-            self?.notesManager.addNewFolder(name, to: notes)
+            self?.notesManager.addNew(folder: name)
         }
         
         ac.addTextField { (textField) in
@@ -86,7 +87,10 @@ class MainTableViewController: UITableViewController {
     }
     @objc func addNoteTapped() {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-            navigationController?.pushViewController(noteDetail, animated: true)
+                noteDetail.folderID = allFolders[0].id // All Notes is always 0 index
+                noteDetail.body = ""
+                
+                navigationController?.pushViewController(noteDetail, animated: true)
         }
     }
 }
@@ -97,10 +101,13 @@ extension MainTableViewController: NotesManagerDelegate {
         allFolders = folders
         tableView.reloadData()
     }
-    func didAddNewFolder(newFolder: Folder, index: Int) {
-        allFolders.insert(newFolder, at: index)
-        let indexPath = IndexPath(row: index, section: 0)
+    func didAddNew(folder: Folder, at: Int) {
+        allFolders.insert(folder, at: at)
+        let indexPath = IndexPath(row: at, section: 0)
         tableView.insertRows(at: [indexPath], with: .automatic)
+    }
+    func didSave() {
+        print("didSave - main")
     }
 }
 
