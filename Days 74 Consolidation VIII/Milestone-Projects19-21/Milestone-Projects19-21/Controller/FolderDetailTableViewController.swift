@@ -8,7 +8,7 @@
 import UIKit
 
 class FolderDetailTableViewController: UITableViewController {
-    
+    var notesManager = NotesManager()
     var folder: Folder!
 
     override func viewDidLoad() {
@@ -16,16 +16,15 @@ class FolderDetailTableViewController: UITableViewController {
         
         title = folder.name
         // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+//         self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+//         self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return folder.notes.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

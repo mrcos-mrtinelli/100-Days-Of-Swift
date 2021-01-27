@@ -10,6 +10,7 @@ import UIKit
 class NoteDetailViewController: UIViewController {
     @IBOutlet var textView: UITextView!
     
+    var folder: String!
     var body: String!
     
     override func viewDidLoad() {

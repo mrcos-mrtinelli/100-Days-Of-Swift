@@ -8,13 +8,16 @@
 import Foundation
 
 protocol NotesManagerDelegate {
-    func didLoadNotes(_ notesManager: NotesManager, notes: [Folder])
+    func didLoadNotes(_ notesManager: NotesManager, folders: [Folder])
     func didAddNewFolder(newFolder: Folder, index: Int)
 }
 
 struct NotesManager {
-    var delegate: NotesManagerDelegate?
     let key = "notes"
+    
+    var delegate: NotesManagerDelegate?
+    var allFolders = [Folder]()
+    
     
     func decodeJSON(_ data: Data) -> [Folder]? {
         let decoder = JSONDecoder()
@@ -28,14 +31,14 @@ struct NotesManager {
         
         return [Folder]()
     }
-    func load() {
+    mutating func load() {
         let defaults = UserDefaults.standard
-        var notes = [Folder]()
+//        var folders = [Folder]()
         
         if let savedData = defaults.object(forKey: key) as? Data {
             print("found saved data")
             if let decodedData = decodeJSON(savedData) {
-                notes = decodedData
+                allFolders = decodedData
             }
         } else {
             let firstNote = Note(body: """
@@ -43,17 +46,21 @@ struct NotesManager {
                     line two is on a different line.
                     line three is on yet another different line.
                     """)
-            notes = [Folder(name: "All Notes", notes: [firstNote])]
+            allFolders = [Folder(id: UUID(), name: "All Notes", notes: [firstNote])]
         }
         
-        delegate?.didLoadNotes(self, notes: notes)
+        delegate?.didLoadNotes(self, folders: allFolders)
     }
     func save(_ allNotes: [Folder]) {
         print("save(newFolder)")
     }
     
+    func addNewNote(folder: String) {
+        
+    }
+    
     func addNewFolder(_ name: String, to folders: [Folder]) {
-        let newFolder = Folder(name: name, notes: [Note]())
+        let newFolder = Folder(id: UUID(), name: name, notes: [Note]())
         var allFolders = folders
         allFolders.append(newFolder)
         

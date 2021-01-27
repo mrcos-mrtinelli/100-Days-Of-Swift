@@ -10,7 +10,7 @@ import UIKit
 class MainTableViewController: UITableViewController {
     
     var notesManager = NotesManager()
-    var allNotes = [Folder]()
+    var allFolders = [Folder]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,21 +24,21 @@ class MainTableViewController: UITableViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.isToolbarHidden = false
         toolbarItems = [newFolder, spacer, newNote]
-        title = "Notes"
+        title = "Folders"
         
         
         notesManager.delegate = self
         notesManager.load()
     }//MARK: tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allNotes.count
+        return allFolders.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FolderCell", for: indexPath)
         
         if let folderCell = cell as? FolderCell {
-            folderCell.folderName.text = allNotes[indexPath.row].name
-            folderCell.notesCount.text = "\(allNotes[indexPath.row].notes.count)"
+            folderCell.folderName.text = allFolders[indexPath.row].name
+            folderCell.notesCount.text = "\(allFolders[indexPath.row].notes.count)"
             return folderCell
         }
         
@@ -46,7 +46,7 @@ class MainTableViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailTableViewController {
-            folderDetailVC.folder = allNotes[indexPath.row]
+            folderDetailVC.folder = allFolders[indexPath.row]
             navigationController?.pushViewController(folderDetailVC, animated: true)
         }
     }
@@ -60,7 +60,7 @@ class MainTableViewController: UITableViewController {
             
             // update this to disable/enable Save button based on name
             if name != "" {
-                guard let notes = self?.allNotes else { return }
+                guard let notes = self?.allFolders else { return }
                 self?.notesManager.addNewFolder(name, to: notes)
             } else {
                 let warning = UIAlertController(title: "Error", message: "You must enter a name for your folder.", preferredStyle: .alert)
@@ -87,12 +87,12 @@ class MainTableViewController: UITableViewController {
 
 //MARK: NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
-    func didLoadNotes(_ notesManager: NotesManager, notes: [Folder]) {
-        allNotes = notes
+    func didLoadNotes(_ notesManager: NotesManager, folders: [Folder]) {
+        allFolders = folders
         tableView.reloadData()
     }
     func didAddNewFolder(newFolder: Folder, index: Int) {
-        allNotes.insert(newFolder, at: index)
+        allFolders.insert(newFolder, at: index)
         let indexPath = IndexPath(row: index, section: 0)
         tableView.insertRows(at: [indexPath], with: .automatic)
     }

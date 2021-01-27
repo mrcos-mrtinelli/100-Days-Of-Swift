@@ -9,6 +9,7 @@ import Foundation
 
 
 struct Folder: Codable {
+    var id: UUID
     var name: String
     var notes: [Note]
 }
