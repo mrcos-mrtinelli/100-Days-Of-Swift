@@ -84,7 +84,7 @@ class MainTableViewController: UITableViewController {
     }
     @objc func addNoteTapped() {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-            noteDetail.delegate = self
+            
             noteDetail.folderID = allFolders[0].id // All Notes is always 0 index
             noteDetail.body = ""
             
@@ -108,8 +108,4 @@ extension MainTableViewController: NotesManagerDelegate {
         notesManager.loadAllFolders()
     }
 }
-extension MainTableViewController: NoteDetailViewControllerDelegate {
-    func addNewNote(note: String, folderID: UUID) {
-        notesManager.addNew(note: note, folderID: folderID)
-    }
-}
+

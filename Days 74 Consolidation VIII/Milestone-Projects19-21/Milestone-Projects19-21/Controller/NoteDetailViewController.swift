@@ -22,7 +22,6 @@ class NoteDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.delegate = self
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(saveTapped))
         
@@ -33,16 +32,6 @@ class NoteDetailViewController: UIViewController {
         notesManager = NotesManager()
     }
     @objc func saveTapped() {
-        print("saveTapped")
-        
-    }
-}
-extension NoteDetailViewController: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        guard let noteBody = textView.text, textView.hasText else {
-            return
-        }
-        delegate?.addNewNote(note: noteBody, folderID: folderID)
     }
 }
 

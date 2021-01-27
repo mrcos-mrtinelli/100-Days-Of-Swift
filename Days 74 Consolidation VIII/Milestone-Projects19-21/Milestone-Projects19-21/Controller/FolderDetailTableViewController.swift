@@ -23,11 +23,7 @@ class FolderDetailTableViewController: UITableViewController {
         toolbarItems = [spacer, newNote]
         
         title = folder.name
-        // Uncomment the following line to preserve selection between presentations
-//         self.clearsSelectionOnViewWillAppear = false
 
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-//         self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
     // MARK: - Table view data source
@@ -52,7 +48,6 @@ class FolderDetailTableViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-            noteDetail.delegate = self
             noteDetail.body = folder.notes[indexPath.row].body
             noteDetail.folderID = folder.id
             
@@ -60,28 +55,6 @@ class FolderDetailTableViewController: UITableViewController {
         }
     }
     @objc func addNoteTapped() {
-        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-            noteDetail.delegate = self
-            noteDetail.folderID = folder.id
-            noteDetail.body = ""
-            
-            navigationController?.pushViewController(noteDetail, animated: true)
-        }
     }
 }
-extension FolderDetailTableViewController: NotesManagerDelegate {
-    func didSave() {
-        let currentFolderID = folder.id
-        
-        notesManager.loadFolderContents(folderID: currentFolderID)
-    }
-    func didLoadFolderContent(folder: Folder) {
-        self.folder = folder
-        tableView.reloadData()
-    }
-}
-extension FolderDetailTableViewController: NoteDetailViewControllerDelegate {
-    func addNewNote(note: String, folderID: UUID) {
-        notesManager.addNew(note: note, folderID: folderID)
-    }
-}
+
