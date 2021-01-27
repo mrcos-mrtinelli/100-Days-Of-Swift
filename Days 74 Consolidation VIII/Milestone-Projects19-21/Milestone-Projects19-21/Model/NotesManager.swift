@@ -8,7 +8,7 @@
 import Foundation
 
 protocol NotesManagerDelegate {
-    func didUpdateNotes(_ notesManager: NotesManager, folders: [Folder])
+    func didLoad(_ notesManager: NotesManager, folders: [Folder])
     func didAddNewFolder(newFolder: Folder, index: Int)
 }
 
@@ -29,28 +29,39 @@ struct NotesManager {
         
         return [Folder]()
     }
-    func load() {
+    func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
-        var folders = [Folder]()
-        
+    
         if let savedData = defaults.object(forKey: key) as? Data {
             print("found saved data")
             if let decodedData = decodeJSON(savedData) {
-                folders = decodedData
+                return decodedData
             }
-        } else {
-            let firstNote = Note(body: """
+        }
+        
+        let firstNote = Note(body: """
                     This is a notes with multiple lines.
                     line two is on a different line.
                     line three is on yet another different line.
                     """)
-            folders = [Folder(id: UUID(), name: "All Notes", notes: [firstNote])]
-        }
+        return [Folder(id: UUID(), name: "All Notes", notes: [firstNote])]
+    }
+    func load() {
+        let folders = getSavedData()
         
-        delegate?.didUpdateNotes(self, folders: folders)
+        delegate?.didLoad(self, folders: folders)
     }
     func save(_ allNotes: [Folder]) {
-        print("save(newFolder)")
+        let encoder = JSONEncoder()
+        
+        if let savedData = try? encoder.encode(allNotes) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: key)
+            print("saved!")
+        } else {
+            print("error saving")
+        }
+        
     }
     
     func addNewNote(folder: String) {
@@ -59,12 +70,12 @@ struct NotesManager {
     
     func addNewFolder(_ name: String, to folders: [Folder]) {
         let newFolder = Folder(id: UUID(), name: name, notes: [Note]())
-        var allFolders = folders
+        var allFolders = getSavedData()
         allFolders.append(newFolder)
         
         let sortedFolders = sortFolders(folders: allFolders)
         let index = sortedFolders.firstIndex { (folder) in
-            return folder.name == newFolder.name
+            return folder.id == newFolder.id
         }
         
         save(sortedFolders)

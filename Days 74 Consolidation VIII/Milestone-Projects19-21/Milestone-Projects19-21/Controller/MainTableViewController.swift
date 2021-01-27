@@ -93,7 +93,7 @@ class MainTableViewController: UITableViewController {
 
 //MARK: NotesManagerDelegate
 extension MainTableViewController: NotesManagerDelegate {
-    func didUpdateNotes(_ notesManager: NotesManager, folders: [Folder]) {
+    func didLoad(_ notesManager: NotesManager, folders: [Folder]) {
         allFolders = folders
         tableView.reloadData()
     }
