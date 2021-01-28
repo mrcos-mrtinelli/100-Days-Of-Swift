@@ -7,20 +7,11 @@
 
 import UIKit
 
-class FolderDetailTableViewController: UITableViewController {
-    var notesManager = NotesManager()
+class FolderDetailController: UITableViewController {
     var folder: Folder!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let spacer = UIBarButtonItem(systemItem: .flexibleSpace)
-        let newNoteIcon = UIImage(systemName: "square.and.pencil")
-        let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(addNoteTapped))
-        
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.isToolbarHidden = false
-        toolbarItems = [spacer, newNote]
         
         title = folder.name
 
@@ -47,14 +38,12 @@ class FolderDetailTableViewController: UITableViewController {
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
+        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
             noteDetail.body = folder.notes[indexPath.row].body
             noteDetail.folderID = folder.id
             
             navigationController?.pushViewController(noteDetail, animated: true)
         }
-    }
-    @objc func addNoteTapped() {
     }
 }
 

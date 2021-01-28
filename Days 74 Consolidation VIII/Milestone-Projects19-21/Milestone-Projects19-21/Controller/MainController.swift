@@ -7,10 +7,11 @@
 
 import UIKit
 
-class MainTableViewController: UITableViewController {
+class MainController: UITableViewController {
     
     var notesManager = NotesManager()
     var allFolders = [Folder]()
+    var currentFolderID = "allNotes"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,7 +20,7 @@ class MainTableViewController: UITableViewController {
         let newFolderIcon = UIImage(systemName: "folder.badge.plus")
         let newFolder = UIBarButtonItem(image: newFolderIcon, style: .plain, target: self, action: #selector(addFolderTapped))
         let newNoteIcon = UIImage(systemName: "square.and.pencil")
-        let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(addNoteTapped))
+        let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(createNewNote))
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.isToolbarHidden = false
@@ -45,7 +46,7 @@ class MainTableViewController: UITableViewController {
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailTableViewController {
+        if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailController {
             folderDetailVC.folder = allFolders[indexPath.row]
             navigationController?.pushViewController(folderDetailVC, animated: true)
         }
@@ -82,19 +83,17 @@ class MainTableViewController: UITableViewController {
         present(ac, animated: true)
         
     }
-    @objc func addNoteTapped() {
-        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailViewController {
-            
-            noteDetail.folderID = allFolders[0].id // All Notes is always 0 index
-            noteDetail.body = ""
-            
-            navigationController?.pushViewController(noteDetail, animated: true)
+    @objc func createNewNote() {
+        if let noteVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
+            noteVC.delegate = self
+            navigationController?.pushViewController(noteVC, animated: true)
         }
+
     }
 }
 
 //MARK: - NotesManagerDelegate
-extension MainTableViewController: NotesManagerDelegate {
+extension MainController: NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder]) {
         allFolders = folders
         tableView.reloadData()
@@ -104,8 +103,15 @@ extension MainTableViewController: NotesManagerDelegate {
         let indexPath = IndexPath(row: at, section: 0)
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
-    func didSave() {
-        notesManager.loadAllFolders()
+    func didSave(_ folders: [Folder]) {
+        allFolders = folders
+        tableView.reloadData()
+    }
+}
+extension MainController: NoteDetailControllerDelegate {
+    func didFinishNote(_ note: String?) {
+        guard let body = note, note != "" else { return }
+        notesManager.addNew(note: body, folderID: currentFolderID)
     }
 }
 

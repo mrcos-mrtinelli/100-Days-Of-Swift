@@ -10,7 +10,7 @@ import Foundation
 protocol NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder])
     func didAddNew(folder: Folder, at index: Int)
-    func didSave()
+    func didSave(_ folders: [Folder])
     func didLoadFolderContent(folder: Folder)
 }
 extension NotesManagerDelegate {
@@ -61,7 +61,7 @@ struct NotesManager {
         defaults.set(encodedNotes, forKey: key)
         print("saved!")
         
-        delegate?.didSave()
+        delegate?.didSave(folders)
     }
     func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
@@ -73,36 +73,30 @@ struct NotesManager {
             }
         }
         
-        let firstNote = Note(body: """
+        let firstNote = Note(id: UUID().uuidString, body: """
                     This is a notes with multiple lines.
                     line two is on a different line.
                     line three is on yet another different line.
                     """)
-        return [Folder(id: UUID(), name: "All Notes", notes: [firstNote])]
+        return [Folder(id: "allNotes", name: "All Notes", notes: [firstNote])]
     }
     func loadAllFolders() {
         let folders = getSavedData()
         
         delegate?.didLoad(self, folders: folders)
     }
-    func loadFolderContents(folderID: UUID) {
+    func loadFolderContents(folderID: String) {
         let allFolders = getSavedData()
         let index = getFolderIndex(for: folderID, in: allFolders)
         
         delegate?.didLoadFolderContent(folder: allFolders[index])
     }
-    func getFolderIndex(for folderID: UUID, in folders: [Folder]) -> Int {
-        if let folderIndex = folders.firstIndex(where: {(folder) in folder.id == folderID}) {
-            return folderIndex
-        }
-        return 0
-    }
     //MARK: Folder and Note Utilities
-    func addNew(note: String, folderID: UUID) {
+    func addNew(note: String, folderID: String) {
         var savedData = getSavedData()
         
         let index = getFolderIndex(for: folderID, in: savedData)
-        let newNote = Note(body: note)
+        let newNote = Note(id: UUID().uuidString, body: note)
         
         savedData[index].notes.append(newNote)
         
@@ -110,7 +104,7 @@ struct NotesManager {
     }
     
     func addNew(folder name: String) {
-        let newFolder = Folder(id: UUID(), name: name, notes: [Note]())
+        let newFolder = Folder(id: UUID().uuidString, name: name, notes: [Note]())
         
         var allFolders = getSavedData()
         allFolders.append(newFolder)
@@ -133,6 +127,12 @@ struct NotesManager {
         sortedFolders.insert(allNotesFolder, at: 0)
         
         return sortedFolders
+    }
+    func getFolderIndex(for folderID: String, in folders: [Folder]) -> Int {
+        if let folderIndex = folders.firstIndex(where: {(folder) in folder.id == folderID}) {
+            return folderIndex
+        }
+        return 0
     }
 }
 
