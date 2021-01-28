@@ -30,7 +30,7 @@ class NoteDetailController: UIViewController {
         navigationItem.largeTitleDisplayMode = .never
         
         // add padding https://www.hackingwithswift.com/example-code/uikit/how-to-pad-a-uitextview-by-setting-its-text-container-inset
-        textView.textContainerInset = UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20)
+//        textView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 0, right: 20)
         textView.text = body
     }
     override func viewWillDisappear(_ animated: Bool) {

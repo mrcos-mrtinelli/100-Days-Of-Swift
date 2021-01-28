@@ -27,6 +27,15 @@ class MainController: UITableViewController {
         toolbarItems = [newFolder, spacer, newNote]
         title = "Folders"
         
+        //https://stackoverflow.com/questions/26390072/how-to-remove-border-of-the-navigationbar-in-swift
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        
+        navigationController?.toolbar.barTintColor = .white
+        navigationController?.toolbar.clipsToBounds = true
+        
+        tableView.tableFooterView = UIView()
+        
         notesManager.delegate = self
         notesManager.loadAllFolders()
     }

@@ -23,6 +23,8 @@ class FolderDetailController: UITableViewController {
         navigationController?.isToolbarHidden = false
         toolbarItems = [spacer, newNote]
         
+        tableView.tableFooterView = UIView()
+        
         title = folder.name
         notesManager = NotesManager()
         notesManager.delegate = self

@@ -84,12 +84,7 @@ struct NotesManager {
             }
         }
         
-        let firstNote = Note(id: UUID().uuidString, body: """
-                    This is a notes with multiple lines.
-                    line two is on a different line.
-                    line three is on yet another different line.
-                    """)
-        return [Folder(id: "allNotes", name: "All Notes", notes: [firstNote])]
+        return [Folder(id: "allNotes", name: "All Notes", notes: [Note]())]
     }
     func loadAllFolders() {
         let folders = getSavedData()
