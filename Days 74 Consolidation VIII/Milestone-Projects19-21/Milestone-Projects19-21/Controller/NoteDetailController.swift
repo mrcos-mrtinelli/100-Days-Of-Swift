@@ -8,13 +8,17 @@
 import UIKit
 
 protocol NoteDetailControllerDelegate {
-    func didFinishNote(_ note: String?)
+    func didCreateNote(_ note: String?)
+    func didUpdateNote(_ note: String, noteID: String)
+}
+extension NoteDetailControllerDelegate {
+    func didCreateNote(_ note: String?) {}
+    func didUpdateNote(_ note: String, noteID: String) {}
 }
 
 class NoteDetailController: UIViewController {
     @IBOutlet var textView: UITextView!
     
-    var folderID: String!
     var noteID: String?
     var body: String!
     
@@ -33,7 +37,12 @@ class NoteDetailController: UIViewController {
         super.viewWillDisappear(true)
         
         if self.isMovingFromParent {
-            delegate?.didFinishNote(textView.text)
+            if let noteIDString = noteID {
+                print("didUpdateNote")
+                delegate?.didUpdateNote(textView.text, noteID: noteIDString)
+            } else {
+                delegate?.didCreateNote(textView.text)
+            }
         }
     }
 }

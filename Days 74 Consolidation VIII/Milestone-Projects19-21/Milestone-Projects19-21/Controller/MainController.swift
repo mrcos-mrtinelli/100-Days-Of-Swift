@@ -18,7 +18,7 @@ class MainController: UITableViewController {
         
         let spacer = UIBarButtonItem(systemItem: .flexibleSpace)
         let newFolderIcon = UIImage(systemName: "folder.badge.plus")
-        let newFolder = UIBarButtonItem(image: newFolderIcon, style: .plain, target: self, action: #selector(addFolderTapped))
+        let newFolder = UIBarButtonItem(image: newFolderIcon, style: .plain, target: self, action: #selector(createNewFolder))
         let newNoteIcon = UIImage(systemName: "square.and.pencil")
         let newNote = UIBarButtonItem(image: newNoteIcon, style: .plain, target: self, action: #selector(createNewNote))
         
@@ -48,12 +48,13 @@ class MainController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailController {
             folderDetailVC.folder = allFolders[indexPath.row]
+            folderDetailVC.currentFolderID = allFolders[indexPath.row].id
             navigationController?.pushViewController(folderDetailVC, animated: true)
         }
     }
     
     //MARK: - toolBar
-    @objc func addFolderTapped() {
+    @objc func createNewFolder() {
         let ac = UIAlertController(title: "New Folder", message: "Enter a name for this folder.", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
@@ -98,20 +99,22 @@ extension MainController: NotesManagerDelegate {
         allFolders = folders
         tableView.reloadData()
     }
-    func didSaveNew(folder: Folder, at: Int) {
+    func didSave(folder: Folder, at: Int) {
         allFolders.insert(folder, at: at)
         let indexPath = IndexPath(row: at, section: 0)
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
-    func didSaveNew(note: Note, to folders: [Folder]) {
+    func didSave(note: Note, to folders: [Folder]) {
         allFolders = folders
         tableView.reloadData()
     }
 }
+
+//MARK: - NoteDetailControllerDelegate
 extension MainController: NoteDetailControllerDelegate {
-    func didFinishNote(_ note: String?) {
+    func didCreateNote(_ note: String?) {
         guard let body = note, note != "" else { return }
-        notesManager.createNew(note: body, folderID: currentFolderID)
+        notesManager.createNew(note: body, noteID: nil, folderID: currentFolderID)
     }
 }
 
