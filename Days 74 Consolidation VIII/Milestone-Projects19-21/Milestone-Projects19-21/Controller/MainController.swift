@@ -60,7 +60,7 @@ class MainController: UITableViewController {
         let submit = UIAlertAction(title: "Save", style: .default) { [weak self, weak ac] _ in
             guard let name = ac!.textFields![0].text else { return }
             
-            self?.notesManager.addNew(folder: name)
+            self?.notesManager.createNew(folder: name)
         }
         
         ac.addTextField { (textField) in
@@ -98,12 +98,12 @@ extension MainController: NotesManagerDelegate {
         allFolders = folders
         tableView.reloadData()
     }
-    func didAddNew(folder: Folder, at: Int) {
+    func didSaveNew(folder: Folder, at: Int) {
         allFolders.insert(folder, at: at)
         let indexPath = IndexPath(row: at, section: 0)
         tableView.insertRows(at: [indexPath], with: .automatic)
     }
-    func didSave(_ folders: [Folder]) {
+    func didSaveNew(note: Note, to folders: [Folder]) {
         allFolders = folders
         tableView.reloadData()
     }
@@ -111,7 +111,7 @@ extension MainController: NotesManagerDelegate {
 extension MainController: NoteDetailControllerDelegate {
     func didFinishNote(_ note: String?) {
         guard let body = note, note != "" else { return }
-        notesManager.addNew(note: body, folderID: currentFolderID)
+        notesManager.createNew(note: body, folderID: currentFolderID)
     }
 }
 

@@ -9,13 +9,13 @@ import Foundation
 
 protocol NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder])
-    func didAddNew(folder: Folder, at index: Int)
-    func didSave(_ folders: [Folder])
+    func didSaveNew(folder: Folder, at index: Int)
+    func didSaveNew(note: Note, to folders: [Folder])
     func didLoadFolderContent(folder: Folder)
 }
 extension NotesManagerDelegate {
     func didLoad(_ notesManager: NotesManager, folders: [Folder]) {}
-    func didAddNew(folder: Folder, at index: Int) {}
+    func didSaveNew(folder: Folder, at index: Int) {}
     func didSave() {}
     func didLoadFolderContent(folder: Folder) {}
 }
@@ -50,7 +50,7 @@ struct NotesManager {
         return nil
     }
     //MARK: - Save and Load Utilities
-    func save(folders: [Folder]) {
+    func saveNewNote(newNote: Note, to folders: [Folder]) {
         
         guard let encodedNotes = encodeJSON(folders: folders) else {
             print("Error saving")
@@ -61,7 +61,18 @@ struct NotesManager {
         defaults.set(encodedNotes, forKey: key)
         print("saved!")
         
-        delegate?.didSave(folders)
+        delegate?.didSaveNew(note: newNote, to: folders)
+    }
+    func saveNewFolder(newFolder: Folder, at index: Int, to folders: [Folder]) {
+        guard let encodedNotes = encodeJSON(folders: folders) else {
+            print("Error saving")
+            return
+        }
+
+        let defaults = UserDefaults.standard
+        defaults.set(encodedNotes, forKey: key)
+        
+        delegate?.didSaveNew(folder: newFolder, at: index)
     }
     func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
@@ -92,7 +103,7 @@ struct NotesManager {
         delegate?.didLoadFolderContent(folder: allFolders[index])
     }
     //MARK: Folder and Note Utilities
-    func addNew(note: String, folderID: String) {
+    func createNew(note: String, folderID: String) {
         var savedData = getSavedData()
         
         let index = getFolderIndex(for: folderID, in: savedData)
@@ -100,10 +111,10 @@ struct NotesManager {
         
         savedData[index].notes.append(newNote)
         
-        save(folders: savedData)
+        saveNewNote(newNote: newNote, to: savedData)
     }
     
-    func addNew(folder name: String) {
+    func createNew(folder name: String) {
         let newFolder = Folder(id: UUID().uuidString, name: name, notes: [Note]())
         
         var allFolders = getSavedData()
@@ -114,9 +125,7 @@ struct NotesManager {
             return folder.id == newFolder.id
         }
         
-        save(folders: sortedFolders)
-        
-        delegate?.didAddNew(folder: newFolder, at: index!)
+        saveNewFolder(newFolder: newFolder, at: index!, to: sortedFolders)
     }
     func sortFolders(folders: [Folder]) -> [Folder] {
         var mutableFolders = folders

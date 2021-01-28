@@ -15,6 +15,7 @@ class NoteDetailController: UIViewController {
     @IBOutlet var textView: UITextView!
     
     var folderID: String!
+    var noteID: String?
     var body: String!
     
     var delegate:NoteDetailControllerDelegate?
