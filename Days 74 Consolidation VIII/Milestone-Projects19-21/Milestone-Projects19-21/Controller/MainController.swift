@@ -104,7 +104,6 @@ class MainController: UITableViewController {
     @objc func createNewNote() {
         if let noteDetailVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
             noteDetailVC.delegate = self
-            noteDetailVC.isNewNote = true
             
             navigationController?.pushViewController(noteDetailVC, animated: true)
         }
