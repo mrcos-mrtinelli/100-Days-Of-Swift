@@ -13,6 +13,7 @@ class FolderDetailController: UITableViewController {
     var currentFolderID: String!
     var folder: Folder!
     var selectedNoteID: String!
+    var isNewNote: Bool!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,9 +55,9 @@ class FolderDetailController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let noteDetailVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
             selectedNoteID = folder.notes[indexPath.row].id
+            isNewNote = false
             
             noteDetailVC.delegate = self
-            noteDetailVC.isNewNote = false
             noteDetailVC.body = folder.notes[indexPath.row].body
             
             navigationController?.pushViewController(noteDetailVC, animated: true)
@@ -65,8 +66,9 @@ class FolderDetailController: UITableViewController {
     //MARK: - toolbar functions
     @objc func createNewNote() {
         if let noteDetailVC = storyboard?.instantiateViewController(withIdentifier: "NoteDetail") as? NoteDetailController {
+            isNewNote = true
+            
             noteDetailVC.delegate = self
-            noteDetailVC.isNewNote = true
             
             navigationController?.pushViewController(noteDetailVC, animated: true)
         }
@@ -75,12 +77,13 @@ class FolderDetailController: UITableViewController {
 
 //MARK: - NoteDetailControllerDelegate
 extension FolderDetailController: NoteDetailControllerDelegate {
-    func didCreateNote(_ note: String?) {
-        guard let body = note, note != "" else { return }
-        notesManager.createNew(note: body, noteID: nil, folderID: currentFolderID)
-    }
-    func didUpdateNote(_ note: String) {
-        notesManager.update(note: note, noteID: selectedNoteID, folderID: currentFolderID)
+    func doneEditing(_ note: String) {
+        if isNewNote {
+            guard note != "" else { return }
+            notesManager.createNew(note: note, folderID: currentFolderID)
+        } else {
+            notesManager.update(note: note, noteID: selectedNoteID, folderID: currentFolderID)
+        }
     }
 }
 //MARK: - NotesManagerDelegate
@@ -89,7 +92,5 @@ extension FolderDetailController: NotesManagerDelegate {
         let index = notesManager.getFolderIndex(for: currentFolderID, in: folders)
         folder = folders[index]
         tableView.reloadData()
-    }
-    
-    
+    } 
 }

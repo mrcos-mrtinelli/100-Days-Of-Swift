@@ -12,6 +12,11 @@ class MainController: UITableViewController {
     var notesManager = NotesManager()
     var currentFolderID = "allNotes"
     var allFolders = [Folder]()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        allFolders = notesManager.getSavedData()
+        tableView.reloadData()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,8 +43,8 @@ class MainController: UITableViewController {
         tableView.tableFooterView = UIView() // remove toolbar separator border
         
         notesManager.delegate = self
-//        notesManager.loadAllFolders()
-        allFolders = notesManager.getSavedData()
+        
+//        allFolders = notesManager.getSavedData()
     }
     //MARK: - tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -126,9 +131,9 @@ extension MainController: NotesManagerDelegate {
 
 //MARK: - NoteDetailControllerDelegate
 extension MainController: NoteDetailControllerDelegate {
-    func didCreateNote(_ note: String?) {
-        guard let body = note, note != "" else { return }
-        notesManager.createNew(note: body, noteID: nil, folderID: currentFolderID)
+    func doneEditing(_ note: String) {
+        guard note != "" else { return }
+        notesManager.createNew(note: note, folderID: currentFolderID)
     }
 }
 

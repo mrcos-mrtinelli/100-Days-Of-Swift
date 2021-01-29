@@ -74,6 +74,18 @@ struct NotesManager {
         
         delegate?.didSave(folder: newFolder, at: index)
     }
+    func update(note: String, noteID: String, folderID: String) {
+        var savedData = getSavedData()
+        
+        let folderIndex = getFolderIndex(for: folderID, in: savedData)
+        let noteIndex = getNoteIndex(for: noteID, in: savedData[folderIndex])
+        
+        savedData[folderIndex].notes[noteIndex].body = note
+        
+        let updatedNote = savedData[folderIndex].notes[noteIndex]
+        
+        saveNote(newNote: updatedNote, to: savedData)
+    }
     func getSavedData() -> [Folder] {
         let defaults = UserDefaults.standard
     
@@ -88,11 +100,11 @@ struct NotesManager {
     func loadFolderContents(folderID: String) {
         let allFolders = getSavedData()
         let index = getFolderIndex(for: folderID, in: allFolders)
-        
+
         delegate?.didLoadFolderContent(folder: allFolders[index])
     }
     //MARK: Folder and Note Utilities
-    func createNew(note: String, noteID: String?, folderID: String) {
+    func createNew(note: String, folderID: String) {
         var savedData = getSavedData()
         
         let index = getFolderIndex(for: folderID, in: savedData)
@@ -101,18 +113,6 @@ struct NotesManager {
         savedData[index].notes.append(newNote)
         
         saveNote(newNote: newNote, to: savedData)
-    }
-    func update(note: String, noteID: String, folderID: String) {
-        var savedData = getSavedData()
-        
-        let folderIndex = getFolderIndex(for: folderID, in: savedData)
-        let noteIndex = getNoteIndex(for: noteID, in: savedData[folderIndex])
-        
-        savedData[folderIndex].notes[noteIndex].body = note
-        
-        let updatedNote = savedData[folderIndex].notes[noteIndex]
-        
-        saveNote(newNote: updatedNote, to: savedData)
     }
     func createNew(folder name: String) {
         let newFolder = Folder(id: UUID().uuidString, name: name, notes: [Note]())
