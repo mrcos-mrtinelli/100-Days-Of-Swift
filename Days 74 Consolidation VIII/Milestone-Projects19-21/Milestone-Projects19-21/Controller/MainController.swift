@@ -10,8 +10,8 @@ import UIKit
 class MainController: UITableViewController {
     
     var notesManager = NotesManager()
-    var allFolders = [Folder]()
     var currentFolderID = "allNotes"
+    var allFolders = [Folder]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,8 +24,6 @@ class MainController: UITableViewController {
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.isToolbarHidden = false
-        toolbarItems = [newFolder, spacer, newNote]
-        title = "Folders"
         
         //https://stackoverflow.com/questions/26390072/how-to-remove-border-of-the-navigationbar-in-swift
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -34,7 +32,10 @@ class MainController: UITableViewController {
         navigationController?.toolbar.barTintColor = .white
         navigationController?.toolbar.clipsToBounds = true
         
-        tableView.tableFooterView = UIView()
+        toolbarItems = [newFolder, spacer, newNote]
+        title = "Folders"
+        
+        tableView.tableFooterView = UIView() // remove toolbar separator border
         
         notesManager.delegate = self
         notesManager.loadAllFolders()
@@ -56,8 +57,9 @@ class MainController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let folderDetailVC = storyboard?.instantiateViewController(identifier: "FolderDetail") as? FolderDetailController {
-            folderDetailVC.folder = allFolders[indexPath.row]
             folderDetailVC.currentFolderID = allFolders[indexPath.row].id
+            folderDetailVC.folder = allFolders[indexPath.row]
+            
             navigationController?.pushViewController(folderDetailVC, animated: true)
         }
     }
@@ -94,9 +96,11 @@ class MainController: UITableViewController {
         
     }
     @objc func createNewNote() {
-        if let noteVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
-            noteVC.delegate = self
-            navigationController?.pushViewController(noteVC, animated: true)
+        if let noteDetailVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
+            noteDetailVC.delegate = self
+            noteDetailVC.isNewNote = true
+            
+            navigationController?.pushViewController(noteDetailVC, animated: true)
         }
 
     }

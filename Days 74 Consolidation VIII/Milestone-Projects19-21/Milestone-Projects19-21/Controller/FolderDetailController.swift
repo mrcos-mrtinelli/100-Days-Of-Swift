@@ -8,9 +8,11 @@
 import UIKit
 
 class FolderDetailController: UITableViewController {
-    var notesManager: NotesManager!
-    var folder: Folder!
+    
+    var notesManager = NotesManager()
     var currentFolderID: String!
+    var folder: Folder!
+    var selectedNoteID: String!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,21 +23,14 @@ class FolderDetailController: UITableViewController {
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.isToolbarHidden = false
+        
         toolbarItems = [spacer, newNote]
+        title = folder.name
         
         tableView.tableFooterView = UIView()
         
-        title = folder.name
-        notesManager = NotesManager()
         notesManager.delegate = self
     }
-    @objc func createNewNote() {
-        if let noteVC = storyboard?.instantiateViewController(withIdentifier: "NoteDetail") as? NoteDetailController {
-            noteVC.delegate = self
-            navigationController?.pushViewController(noteVC, animated: true)
-        }
-    }
-
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -57,12 +52,22 @@ class FolderDetailController: UITableViewController {
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let noteDetail = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
-            noteDetail.delegate = self
-            noteDetail.noteID = folder.notes[indexPath.row].id
-            noteDetail.body = folder.notes[indexPath.row].body
+        if let noteDetailVC = storyboard?.instantiateViewController(identifier: "NoteDetail") as? NoteDetailController {
+            selectedNoteID = folder.notes[indexPath.row].id
             
-            navigationController?.pushViewController(noteDetail, animated: true)
+            noteDetailVC.delegate = self
+            noteDetailVC.isNewNote = false
+            noteDetailVC.body = folder.notes[indexPath.row].body
+            
+            navigationController?.pushViewController(noteDetailVC, animated: true)
+        }
+    }
+    //MARK: - toolbar functions
+    @objc func createNewNote() {
+        if let noteDetailVC = storyboard?.instantiateViewController(withIdentifier: "NoteDetail") as? NoteDetailController {
+            noteDetailVC.delegate = self
+            noteDetailVC.isNewNote = true
+            navigationController?.pushViewController(noteDetailVC, animated: true)
         }
     }
 }
@@ -73,8 +78,8 @@ extension FolderDetailController: NoteDetailControllerDelegate {
         guard let body = note, note != "" else { return }
         notesManager.createNew(note: body, noteID: nil, folderID: currentFolderID)
     }
-    func didUpdateNote(_ note: String, noteID: String) {
-        notesManager.update(note: note, noteID: noteID, folderID: currentFolderID)
+    func didUpdateNote(_ note: String) {
+        notesManager.update(note: note, noteID: selectedNoteID, folderID: currentFolderID)
     }
 }
 //MARK: - NotesManagerDelegate

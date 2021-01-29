@@ -9,17 +9,17 @@ import UIKit
 
 protocol NoteDetailControllerDelegate {
     func didCreateNote(_ note: String?)
-    func didUpdateNote(_ note: String, noteID: String)
+    func didUpdateNote(_ note: String)
 }
 extension NoteDetailControllerDelegate {
     func didCreateNote(_ note: String?) {}
-    func didUpdateNote(_ note: String, noteID: String) {}
+    func didUpdateNote(_ note: String) {}
 }
 
 class NoteDetailController: UIViewController {
     @IBOutlet var textView: UITextView!
     
-    var noteID: String?
+    var isNewNote: Bool!
     var body: String!
     
     var delegate:NoteDetailControllerDelegate?
@@ -29,19 +29,18 @@ class NoteDetailController: UIViewController {
         
         navigationItem.largeTitleDisplayMode = .never
         
-        // add padding https://www.hackingwithswift.com/example-code/uikit/how-to-pad-a-uitextview-by-setting-its-text-container-inset
-//        textView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 0, right: 20)
         textView.text = body
     }
+    // when user hits "< Back" on navigationController
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         
+        // if self is being popped out of navigation stack
         if self.isMovingFromParent {
-            if let noteIDString = noteID {
-                print("didUpdateNote")
-                delegate?.didUpdateNote(textView.text, noteID: noteIDString)
-            } else {
+            if isNewNote {
                 delegate?.didCreateNote(textView.text)
+            } else {
+                delegate?.didUpdateNote(textView.text)
             }
         }
     }
