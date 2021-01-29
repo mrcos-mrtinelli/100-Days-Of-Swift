@@ -67,6 +67,7 @@ class FolderDetailController: UITableViewController {
         if let noteDetailVC = storyboard?.instantiateViewController(withIdentifier: "NoteDetail") as? NoteDetailController {
             noteDetailVC.delegate = self
             noteDetailVC.isNewNote = true
+            
             navigationController?.pushViewController(noteDetailVC, animated: true)
         }
     }

@@ -38,7 +38,8 @@ class MainController: UITableViewController {
         tableView.tableFooterView = UIView() // remove toolbar separator border
         
         notesManager.delegate = self
-        notesManager.loadAllFolders()
+//        notesManager.loadAllFolders()
+        allFolders = notesManager.getSavedData()
     }
     //MARK: - tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
