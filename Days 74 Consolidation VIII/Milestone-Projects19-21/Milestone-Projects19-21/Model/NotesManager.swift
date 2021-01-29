@@ -8,16 +8,12 @@
 import Foundation
 
 protocol NotesManagerDelegate {
-    
     func didSave(folder: Folder, at index: Int)
     func didSave(note: Note, to folders: [Folder])
-    func didLoadFolderContent(folder: Folder)
 }
 extension NotesManagerDelegate {
-    
     func didSave(folder: Folder, at index: Int) {}
     func didSave(note: Note, to folders: [Folder]) {}
-    func didLoadFolderContent(folder: Folder) {}
 }
 
 struct NotesManager {
@@ -59,7 +55,6 @@ struct NotesManager {
 
         let defaults = UserDefaults.standard
         defaults.set(encodedNotes, forKey: key)
-        print("saved!")
         
         delegate?.didSave(note: newNote, to: folders)
     }
@@ -96,12 +91,6 @@ struct NotesManager {
         }
         
         return [Folder(id: "allNotes", name: "All Notes", notes: [Note]())]
-    }
-    func loadFolderContents(folderID: String) {
-        let allFolders = getSavedData()
-        let index = getFolderIndex(for: folderID, in: allFolders)
-
-        delegate?.didLoadFolderContent(folder: allFolders[index])
     }
     //MARK: Folder and Note Utilities
     func createNew(note: String, folderID: String) {
