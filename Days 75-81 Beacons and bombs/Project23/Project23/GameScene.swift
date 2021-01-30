@@ -40,8 +40,7 @@ class GameScene: SKScene {
     var nextSequenceQueued = true
     var isGameEnded = false
     
-
-    
+    //MARK: - SKScene Functions
     override func didMove(to view: SKView) {
         let background = SKSpriteNode(imageNamed: "sliceBackground")
         background.position = CGPoint(x: 512, y: 384)
@@ -68,41 +67,7 @@ class GameScene: SKScene {
             self?.tossEnemies()
         }
     }
-    func createScore() {
-        gameScore = SKLabelNode(fontNamed: "Chalkduster")
-        gameScore.horizontalAlignmentMode = .left
-        gameScore.fontSize = 48
-        addChild(gameScore)
-
-        gameScore.position = CGPoint(x: 8, y: 8)
-        score = 0
-    }
-
-    func createLives() {
-        for i in 0 ..< 3 {
-            let spriteNode = SKSpriteNode(imageNamed: "sliceLife")
-            spriteNode.position = CGPoint(x: CGFloat(834 + (i * 70)), y: 720)
-            addChild(spriteNode)
-
-            livesImages.append(spriteNode)
-        }
-    }
-    func createSlices() {
-        activeSliceBG = SKShapeNode()
-        activeSliceBG.zPosition = 2
-        
-        activeSliceFG = SKShapeNode()
-        activeSliceFG.zPosition = 3
-        
-        activeSliceBG.strokeColor = UIColor(red: 1, green: 0.9, blue: 0, alpha: 1)
-        activeSliceBG.lineWidth = 9
-        
-        activeSliceFG.strokeColor = UIColor.white
-        activeSliceFG.lineWidth = 5
-        
-        addChild(activeSliceBG)
-        addChild(activeSliceFG)
-    }
+    
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard isGameEnded == false else { return }
@@ -119,10 +84,17 @@ class GameScene: SKScene {
         let nodesAtPoint = nodes(at: location)
 
         for case let node as SKSpriteNode in nodesAtPoint {
-            if node.name == "enemy" {
+            if node.name == "enemy" || node.name == "trickEnemy" {
                 if let emitter = SKEmitterNode(fileNamed: "sliceHitEnemy") {
                     emitter.position = node.position
                     addChild(emitter)
+                }
+                
+                if node.name == "trickEnemy" {
+                    score += 5
+                    
+                } else {
+                    score += 1
                 }
 
                 node.name = ""
@@ -135,7 +107,7 @@ class GameScene: SKScene {
                 let seq = SKAction.sequence([group, .removeFromParent()])
                 node.run(seq)
 
-                score += 1
+                
 
                 if let index = activeEnemies.firstIndex(of: node) {
                     activeEnemies.remove(at: index)
@@ -207,7 +179,6 @@ class GameScene: SKScene {
                         node.removeFromParent()
                         activeEnemies.remove(at: index)
                     }
-                    
                 }
             }
         } else {
@@ -236,38 +207,41 @@ class GameScene: SKScene {
     }
     
     //MARK: - Game Functions
-    func playSwooshSound() {
-        isSwooshSoundActive = true
+    func createScore() {
+        gameScore = SKLabelNode(fontNamed: "Chalkduster")
+        gameScore.horizontalAlignmentMode = .left
+        gameScore.fontSize = 48
 
-        let randomNumber = Int.random(in: 1...3)
-        let soundName = "swoosh\(randomNumber).caf"
+        gameScore.position = CGPoint(x: 8, y: 8)
+        score = 0
         
-        let swooshSound = SKAction.playSoundFileNamed(soundName, waitForCompletion: true)
-        
-        run(swooshSound) { [weak self] in
-            self?.isSwooshSoundActive = false
+        addChild(gameScore)
+    }
+
+    func createLives() {
+        for i in 0 ..< 3 {
+            let spriteNode = SKSpriteNode(imageNamed: "sliceLife")
+            spriteNode.position = CGPoint(x: CGFloat(834 + (i * 70)), y: 720)
+            addChild(spriteNode)
+
+            livesImages.append(spriteNode)
         }
     }
-    func redrawActiveSlice() {
-        if activeSlicePoints.count < 2 {
-            activeSliceBG.path = nil
-            activeSliceFG.path = nil
-            return
-        }
+    func createSlices() {
+        activeSliceBG = SKShapeNode()
+        activeSliceBG.zPosition = 2
         
-        if activeSlicePoints.count > 12 {
-            activeSlicePoints.removeFirst(activeSlicePoints.count - 12)
-        }
-         
-        let path = UIBezierPath()
-        path.move(to: activeSlicePoints[0])
+        activeSliceFG = SKShapeNode()
+        activeSliceFG.zPosition = 3
         
-        for i in 1 ..< activeSlicePoints.count {
-            path.addLine(to: activeSlicePoints[i])
-        }
+        activeSliceBG.strokeColor = UIColor(red: 1, green: 0.9, blue: 0, alpha: 1)
+        activeSliceBG.lineWidth = 9
         
-        activeSliceBG.path = path.cgPath
-        activeSliceFG.path = path.cgPath
+        activeSliceFG.strokeColor = UIColor.white
+        activeSliceFG.lineWidth = 5
+        
+        addChild(activeSliceBG)
+        addChild(activeSliceFG)
     }
     func createEnemy(forceBomb: ForceBomb = .random) {
         let enemy: SKSpriteNode
@@ -305,10 +279,22 @@ class GameScene: SKScene {
                 emitter.position = CGPoint(x: 76, y: 64)
                 enemy.addChild(emitter)
             }
+        } else if enemyType == 2 {
+            let scaleAction = SKAction.scale(to: 0.25, duration: 3.5)
+            
+            enemy = SKSpriteNode(imageNamed: "penguin")
+            enemy.name = "trickEnemy"
+            enemy.xScale = 1
+            enemy.yScale = 1
+            enemy.run(scaleAction)
+            
+            run(SKAction.playSoundFileNamed("launch.caf", waitForCompletion: false))
+            
         } else {
             enemy = SKSpriteNode(imageNamed: "penguin")
-            run(SKAction.playSoundFileNamed("launch.caf", waitForCompletion: false))
             enemy.name = "enemy"
+            
+            run(SKAction.playSoundFileNamed("launch.caf", waitForCompletion: false))
         }
 
         let randomPosition = CGPoint(x: Int.random(in: 64...960), y: -128)
@@ -336,6 +322,39 @@ class GameScene: SKScene {
 
         addChild(enemy)
         activeEnemies.append(enemy)
+    }
+    func playSwooshSound() {
+        isSwooshSoundActive = true
+
+        let randomNumber = Int.random(in: 1...3)
+        let soundName = "swoosh\(randomNumber).caf"
+        
+        let swooshSound = SKAction.playSoundFileNamed(soundName, waitForCompletion: true)
+        
+        run(swooshSound) { [weak self] in
+            self?.isSwooshSoundActive = false
+        }
+    }
+    func redrawActiveSlice() {
+        if activeSlicePoints.count < 2 {
+            activeSliceBG.path = nil
+            activeSliceFG.path = nil
+            return
+        }
+        
+        if activeSlicePoints.count > 12 {
+            activeSlicePoints.removeFirst(activeSlicePoints.count - 12)
+        }
+         
+        let path = UIBezierPath()
+        path.move(to: activeSlicePoints[0])
+        
+        for i in 1 ..< activeSlicePoints.count {
+            path.addLine(to: activeSlicePoints[i])
+        }
+        
+        activeSliceBG.path = path.cgPath
+        activeSliceFG.path = path.cgPath
     }
     func tossEnemies() {
         guard isGameEnded == false else { return }
@@ -424,6 +443,18 @@ class GameScene: SKScene {
         
         bombSoundEffect?.stop()
         bombSoundEffect = nil
+        
+        let gameOverLabel = SKLabelNode(fontNamed: "Chalkduster")
+        let scaleInAction = SKAction.scale(to: 1, duration: 0.5)
+        gameOverLabel.horizontalAlignmentMode = .center
+        gameOverLabel.fontSize = 54
+        gameOverLabel.position = CGPoint(x: 512, y: 384)
+        gameOverLabel.xScale = 0.01
+        gameOverLabel.yScale = 0.01
+        gameOverLabel.text = "Game Over!"
+        gameOverLabel.run(scaleInAction)
+        
+        addChild(gameOverLabel)
         
         if triggeredByBomb {
             livesImages[0].texture = SKTexture(imageNamed: "sliceLifeGone")
