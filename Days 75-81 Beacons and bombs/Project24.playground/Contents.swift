@@ -48,7 +48,7 @@ extension String {
         // is a character method that returns a string.
         // some languages have a different character for upper and lower cases
         // german b -> SS
-        
+
     }
 }
 
@@ -88,4 +88,35 @@ attributedMutableString.addAttribute(.font, value: UIFont.systemFont(ofSize: 16)
 attributedMutableString.addAttribute(.font, value: UIFont.systemFont(ofSize: 24), range: NSRange(location: 8, length: 1))
 attributedMutableString.addAttribute(.font, value: UIFont.systemFont(ofSize: 32), range: NSRange(location: 10, length: 4))
 attributedMutableString.addAttribute(.font, value: UIFont.systemFont(ofSize: 40), range: NSRange(location: 15, length: 6))
+
+/* Challenges */
+// note: if parameter needed make a func, else, make a computed var
+extension String {
+    // challenge 1
+    func withPrefix(_ prefix: String) -> String {
+        guard !self.hasPrefix(prefix) else { return self }
+        return prefix + self
+    }
+    // challenge 2]
+    var isNumeric: Bool {
+        return Double(self) != nil
+    }
+//    func isNumeric() -> Bool {
+//        return Double(self) != nil
+//    }
+    //challenge 3
+    var lines: [Substring] {
+        return self.split(separator: "\n")
+    }
+}
+// challenge 1
+"pet".withPrefix("car")
+
+// challenge 2
+"0.1".isNumeric
+
+// challenge 3
+"this\nis\na\ntest".lines
+
+
 
