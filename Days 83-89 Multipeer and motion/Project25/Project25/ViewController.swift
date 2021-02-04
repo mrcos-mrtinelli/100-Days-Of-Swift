@@ -11,16 +11,23 @@ import MultipeerConnectivity
 class ViewController: UICollectionViewController {
     var images = [UIImage]()
     
+    var serviceType = "hws-project25"
     var peerID = MCPeerID(displayName: UIDevice.current.name)
     var mcSession: MCSession?
-    var mcAdAssist: MCAdvertiserAssistant?
+//    var mcAdAssist: MCAdvertiserAssistant?
+    var advertiser: MCNearbyServiceAdvertiser!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Selfie Share"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
+        let connectionBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showConnectionPrompt))
+        let cameraBtn = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(importPicture))
+        let messageBtn = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(startNewMessage))
+        let peersBtn = UIBarButtonItem(title: "Peers", style: .plain, target: self, action: #selector(showPeers))
+        
+        navigationItem.leftBarButtonItems = [connectionBtn, peersBtn]
+        navigationItem.rightBarButtonItems = [cameraBtn, messageBtn]
         
         // peer id
         mcSession = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
@@ -59,20 +66,71 @@ class ViewController: UICollectionViewController {
         present(ac, animated: true)
     }
     func startHosting(action: UIAlertAction) {
-        guard let mcSession = mcSession else { return }
-        mcAdAssist = MCAdvertiserAssistant(serviceType: "hws-project25", discoveryInfo: nil, session: mcSession)
-        mcAdAssist?.start()
+//        guard let mcSession = mcSession else { return }
+//        mcAdAssist = MCAdvertiserAssistant(serviceType: "hws-project25", discoveryInfo: nil, session: mcSession)
+//        mcAdAssist?.start()
+        advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+        advertiser.delegate = self
+        advertiser.startAdvertisingPeer()
     }
 
     func joinSession(action: UIAlertAction) {
         guard let mcSession = mcSession else { return }
-        let mcBrowser = MCBrowserViewController(serviceType: "hws-project25", session: mcSession)
+        let mcBrowser = MCBrowserViewController(serviceType: serviceType, session: mcSession)
         mcBrowser.delegate = self
         present(mcBrowser, animated: true)
     }
+    @objc func startNewMessage() {
+        let ac = UIAlertController(title: "Enter your message", message: nil, preferredStyle: .alert)
+        ac.addTextField { (textfield) in
+            textfield.placeholder = "Message"
+        }
+        let submit = UIAlertAction(title: "Send", style: .default) { [weak self, weak ac] (_) in
+            guard let message = ac?.textFields?.first?.text else { return }
+            self?.sendMessage(message)
+        }
+        ac.addAction(submit)
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(ac, animated: true)
+    }
+    func sendMessage(_ message: String) {
+        guard let mcSession = mcSession else { return }
+        
+        if mcSession.connectedPeers.count > 0 {
+            let messageData = Data(message.utf8)
+            
+            do {
+                try mcSession.send(messageData, toPeers: mcSession.connectedPeers, with: .reliable)
+                
+            } catch  {
+                let ac = UIAlertController(title: "Send error", message: error.localizedDescription, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .cancel))
+                present(ac, animated: true)
+                
+            }
+        }
+    }
+    @objc func showPeers() {
+        guard let mcSessh = mcSession else { return }
+        if mcSessh.connectedPeers.count > 0 {
+            var peersString = ""
+            
+            for peer in mcSessh.connectedPeers {
+                peersString += "\n\(peer.displayName)"
+            }
+            let ac = UIAlertController(title: "Connected Peers", message: peersString, preferredStyle: .actionSheet)
+            ac.addAction(UIAlertAction(title: "Dismiss", style: .default))
+            ac.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItems?[1]
+            
+            present(ac, animated: true)
+        }
+        
+    }
 
 }
-//MARK: -
+//MARK: - DELEGATES
+
 //MARK: UIImagePickerControllerDelegate
 extension ViewController: UIImagePickerControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -100,10 +158,12 @@ extension ViewController: UIImagePickerControllerDelegate {
         
     }
 }
+
 //MARK: UINavigationControllerDelegate
 extension ViewController: UINavigationControllerDelegate {
     
 }
+
 //MARK: MCSessionDelegate
 extension ViewController: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
@@ -113,7 +173,10 @@ extension ViewController: MCSessionDelegate {
         case .connecting:
             print("Connecting: \(peerID.displayName)")
         case .notConnected:
-            print("Not Connected: \(peerID.displayName)")
+            let ac = UIAlertController(title: "Disconnected", message: "\(peerID.displayName) is no longer connected", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .cancel))
+            
+            present(ac, animated: true)
         @unknown default:
             print("Unknown state received: \(peerID.displayName) ")
         }
@@ -123,6 +186,12 @@ extension ViewController: MCSessionDelegate {
             if let image = UIImage(data: data) {
                 self?.images.insert(image, at: 0)
                 self?.collectionView.reloadData()
+            } else  {
+                let message = String(decoding: data, as: UTF8.self)
+                let ac = UIAlertController(title: "\(peerID.displayName)", message: "\(message)", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "Dismiss", style: .default))
+                
+                self?.present(ac, animated: true)
             }
         }
     }
@@ -136,6 +205,7 @@ extension ViewController: MCSessionDelegate {
         
     }
 }
+
 //MARK: MCBrowserViewControllerDelegate
 extension ViewController: MCBrowserViewControllerDelegate {
     func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
@@ -143,5 +213,12 @@ extension ViewController: MCBrowserViewControllerDelegate {
     }
     func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
         dismiss(animated: true)
+    }
+}
+
+
+extension ViewController: MCNearbyServiceAdvertiserDelegate {
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        invitationHandler(true, self.mcSession)
     }
 }
