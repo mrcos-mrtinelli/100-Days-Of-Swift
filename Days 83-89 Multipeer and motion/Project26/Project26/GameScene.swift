@@ -38,7 +38,7 @@ class GameScene: SKScene {
         
         scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
         scoreLabel.horizontalAlignmentMode = .left
-        scoreLabel.position = CGPoint(x: 16, y: 16)
+        scoreLabel.position = CGPoint(x: 16, y: 36)
         scoreLabel.zPosition = 2
         scoreLabel.text = "Score: 0"
         
@@ -49,6 +49,7 @@ class GameScene: SKScene {
         createPlayer()
         
         physicsWorld.gravity = .zero
+        physicsWorld.contactDelegate = self
         
         motionManager = CMMotionManager()
         motionManager?.startAccelerometerUpdates()
@@ -182,11 +183,28 @@ extension GameScene: SKPhysicsContactDelegate {
             playerCollided(with: nodeB)
         } else if nodeB == player {
             playerCollided(with: nodeA)
-        }
-        
-        
+        }   
     }
     func playerCollided( with node: SKNode) {
-        
+        if node.name == "vortex" {
+            player.physicsBody?.isDynamic = false
+            isGameOver = true
+            score -= 1
+            
+            let move = SKAction.move(to: node.position, duration: 0.25)
+            let scale = SKAction.scale(to: 0.0001, duration: 0.25)
+            let remove = SKAction.removeFromParent()
+            let sequence = SKAction.sequence([move, scale, remove])
+            
+            player.run(sequence) { [weak self] in
+                self?.createPlayer()
+                self?.isGameOver = false
+            }
+        } else if node.name == "star" {
+            node.removeFromParent()
+            score += 1
+        } else if node.name == "finish" {
+            // next level code for challenge
+        }
     }
 }
