@@ -14,7 +14,12 @@ enum CollisionTypes: UInt32 {
     case vortex = 8
     case finish = 16
 }
-
+enum ElementType: String {
+    case block = "block"
+    case vortex = "vortex"
+    case star = "star"
+    case finish = "finish"
+}
 class GameScene: SKScene {
     var player: SKSpriteNode!
     var lastTouchPosition: CGPoint?
@@ -85,6 +90,35 @@ class GameScene: SKScene {
     }
     
     //MARK: - Game Functions
+    func create(_ element: ElementType, at position: CGPoint) {
+        let elementName = element.rawValue
+        let node = SKSpriteNode(imageNamed: elementName)
+        
+        node.position = position
+        node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
+        node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
+        node.physicsBody?.collisionBitMask = 0
+        
+        switch element {
+        case .block:
+            node.physicsBody = SKPhysicsBody(rectangleOf: node.size) // updates size
+            node.physicsBody?.categoryBitMask = CollisionTypes.wall.rawValue
+        case .vortex:
+            node.name = elementName
+            node.run(SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 1)))
+            node.physicsBody?.categoryBitMask = CollisionTypes.vortex.rawValue
+        case .star:
+            node.name = elementName
+            node.physicsBody?.categoryBitMask = CollisionTypes.star.rawValue
+        case .finish:
+            node.name = elementName
+            node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
+        }
+        
+        node.physicsBody?.isDynamic = false
+        
+        addChild(node)
+    }
     func loadLevel() {
         guard let levelURL = Bundle.main.url(forResource: "level1", withExtension: "txt") else {
             fatalError("Could not find resource")
@@ -101,55 +135,13 @@ class GameScene: SKScene {
                 
                 switch letter {
                 case "x":
-                    let node = SKSpriteNode(imageNamed: "block")
-                    
-                    node.position = position
-                    node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-                    
-                    node.physicsBody?.categoryBitMask = CollisionTypes.wall.rawValue
-                    node.physicsBody?.isDynamic = false
-                    
-                    addChild(node)
+                    create(.block, at: position)
                 case "v":
-                    // load vortex
-                    let node = SKSpriteNode(imageNamed: "vortex")
-                    node.name = "vortex"
-                    node.position = position
-                    node.run(SKAction.repeatForever(SKAction.rotate(byAngle: .pi, duration: 1)))
-                    node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
-                    node.physicsBody?.isDynamic = false
-
-                    node.physicsBody?.categoryBitMask = CollisionTypes.vortex.rawValue
-                    node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
-                    node.physicsBody?.collisionBitMask = 0
-                    
-                    addChild(node)
+                    create(.vortex, at: position)
                 case "s":
-                    // load star
-                    let node = SKSpriteNode(imageNamed: "star")
-                    node.name = "star"
-                    node.position = position
-                    node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
-                    
-                    node.physicsBody?.isDynamic = false
-                    node.physicsBody?.categoryBitMask = CollisionTypes.star.rawValue
-                    node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
-                    node.physicsBody?.collisionBitMask = 0
-                    
-                    addChild(node)
+                    create(.star, at: position)
                 case "f":
-                    // load finish
-                    let node = SKSpriteNode(imageNamed: "finish")
-                    node.name = "finish"
-                    node.position = position
-                    node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
-                    node.physicsBody?.isDynamic = false
-
-                    node.physicsBody?.categoryBitMask = CollisionTypes.finish.rawValue
-                    node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
-                    node.physicsBody?.collisionBitMask = 0
-                    
-                    addChild(node)
+                    create(.finish, at: position)
                 case " ":
                     // do nothing
                     break
