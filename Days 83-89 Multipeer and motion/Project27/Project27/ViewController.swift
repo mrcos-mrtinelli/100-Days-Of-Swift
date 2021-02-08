@@ -14,12 +14,12 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        drawRectangle()
+        drawEmoji()
     }
     @IBAction func redrawTapped(_ sender: Any) {
         currentDrawType += 1
         
-        if currentDrawType > 5 {
+        if currentDrawType > 6 {
             currentDrawType = 0
         }
         
@@ -36,6 +36,8 @@ class ViewController: UIViewController {
             drawLines()
         case 5:
             drawImagesAndText()
+        case 6:
+            drawEmoji()
         default:
             break
         }
@@ -148,6 +150,42 @@ class ViewController: UIViewController {
         }
 
         imageView.image = img
+    }
+    func drawEmoji() {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 512, height: 512))
+        let image = renderer.image { (context) in
+            let rect = CGRect(x: 0, y: 0, width: 512, height: 512).insetBy(dx: 5, dy: 5)
+            // head
+            context.cgContext.setFillColor(UIColor.yellow.cgColor)
+            context.cgContext.setStrokeColor(UIColor.black.cgColor)
+            context.cgContext.setLineWidth(10)
+            context.cgContext.addEllipse(in: rect)
+            context.cgContext.drawPath(using: .fillStroke)
+            
+            // eyes
+            let leftEye = CGRect(x: 165, y: 171, width: 50, height: 50)
+            let rightEye = CGRect(x: 330, y: 171, width: 50, height: 50)
+            
+            context.cgContext.setFillColor(UIColor.black.cgColor)
+            context.cgContext.setStrokeColor(UIColor.black.cgColor)
+            context.cgContext.addEllipse(in: leftEye)
+            context.cgContext.addEllipse(in: rightEye)
+            context.cgContext.drawPath(using: .fillStroke)
+            
+            // smile
+            let arcStartAngle = Measurement(value: 45, unit: UnitAngle.degrees).converted(to: .radians).value
+            let arcEndAngle = Measurement(value: 135, unit: UnitAngle.degrees).converted(to: .radians).value
+            
+            context.cgContext.addArc(
+                center: CGPoint(x: 256, y: 220),
+                radius: CGFloat(220),
+                startAngle: CGFloat(arcStartAngle),
+                endAngle: CGFloat(arcEndAngle),
+                clockwise: false
+            )
+            context.cgContext.drawPath(using: .stroke)
+        }
+        imageView.image = image
     }
 }
 
