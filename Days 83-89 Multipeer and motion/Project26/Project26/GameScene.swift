@@ -27,6 +27,10 @@ class GameScene: SKScene {
     var player: SKSpriteNode!
     var lastTouchPosition: CGPoint?
     var scoreLabel: SKLabelNode!
+    var gameOverOverlay: SKSpriteNode!
+    var gameOverLabel: SKLabelNode!
+    var nextLevelLabel: SKLabelNode!
+    var playAgainLabel: SKLabelNode!
     
     var score = 0 {
         didSet {
@@ -67,6 +71,14 @@ class GameScene: SKScene {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         lastTouchPosition = location
+
+        for node in nodes(at: location) {
+            if node.name == "playAgain" {
+                playAgain()
+            } else if node.name == "nextLevel" {
+                print("next level")
+            }
+        }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,6 +105,38 @@ class GameScene: SKScene {
     }
     
     //MARK: - Game Functions
+    func loadLevel() {
+        guard let levelURL = Bundle.main.url(forResource: "level1", withExtension: "txt") else {
+            fatalError("Could not find resource")
+        }
+        guard let levelString = try? String(contentsOf: levelURL) else {
+            fatalError("Could not read file")
+        }
+        
+        let lines = levelString.components(separatedBy: "\n")
+        
+        for (row, line) in lines.reversed().enumerated() {
+            for (col, letter) in line.enumerated() {
+                let position = CGPoint(x: (64 * col) + 32, y: (64 * row) - 32)
+                
+                switch letter {
+                case "x":
+                    create(.block, at: position)
+                case "v":
+                    create(.vortex, at: position)
+                case "s":
+                    create(.star, at: position)
+                case "f":
+                    create(.finish, at: position)
+                case " ":
+                    // do nothing
+                    break
+                default:
+                    fatalError("Unknown letter: \(letter)")
+                }
+            }
+        }
+    }
     func create(_ element: ElementType, at position: CGPoint) {
         let elementName = element.rawValue
         let node = SKSpriteNode(imageNamed: elementName)
@@ -126,38 +170,6 @@ class GameScene: SKScene {
         
         addChild(node)
     }
-    func loadLevel() {
-        guard let levelURL = Bundle.main.url(forResource: "level1", withExtension: "txt") else {
-            fatalError("Could not find resource")
-        }
-        guard let levelString = try? String(contentsOf: levelURL) else {
-            fatalError("Could not read file")
-        }
-        
-        let lines = levelString.components(separatedBy: "\n")
-        
-        for (row, line) in lines.reversed().enumerated() {
-            for (col, letter) in line.enumerated() {
-                let position = CGPoint(x: (64 * col) + 32, y: (64 * row) - 32)
-                
-                switch letter {
-                case "x":
-                    create(.block, at: position)
-                case "v":
-                    create(.vortex, at: position)
-                case "s":
-                    create(.star, at: position)
-                case "f":
-                    create(.finish, at: position)
-                case " ":
-                    // do nothing
-                    break
-                default:
-                    fatalError("Unknown letter: \(letter)")
-                }
-            }
-        }
-    }
     func createPlayer() {
         player = SKSpriteNode(imageNamed: "player")
         player.position = CGPoint(x: 96, y: 672)
@@ -171,12 +183,85 @@ class GameScene: SKScene {
         player.physicsBody?.collisionBitMask = CollisionTypes.wall.rawValue
         addChild(player)
     }
-    func gameOver(by gameOver: GameOverType) {
-        if gameOver == .finish {
-            print("hooray!")
-        } else if gameOver == .enemy {
-            print("Aw shucks!")
+    func playerCollided( with node: SKNode) {
+        if node.name == "vortex" {
+            score -= 1
+
+            let move = SKAction.move(to: node.position, duration: 0.25)
+            let scale = SKAction.scale(to: 0.0001, duration: 0.25)
+            let remove = SKAction.removeFromParent()
+            let sequence = SKAction.sequence([move, scale, remove])
+            
+            player.run(sequence)
+            gameOver(by: .enemy)
+            
+        } else if node.name == "star" {
+            node.removeFromParent()
+            score += 1
+        } else if node.name == "finish" {
+            // next level code for challenge
+            gameOver(by: .finish)
         }
+    }
+    func gameOver(by gameOver: GameOverType) {
+        var message: String!
+        
+        player.physicsBody?.isDynamic = false
+        isGameOver = true
+        
+        if gameOver == .finish {
+            message = "Nice Job!"
+            
+            nextLevelLabel = SKLabelNode(fontNamed: "Chalkduster")
+            nextLevelLabel.name = "nextLevel"
+            nextLevelLabel.fontSize = 48
+            nextLevelLabel.text = "Play Next Level!"
+            nextLevelLabel.position = CGPoint(x: 512, y: 310)
+            nextLevelLabel.zPosition = 2
+            addChild(nextLevelLabel)
+            
+        } else if gameOver == .enemy {
+            message = "Awww Shucks!"
+        }
+        
+        gameOverOverlay = SKSpriteNode(color: UIColor.black, size: CGSize(width: 1024, height: 768))
+        gameOverOverlay.position = CGPoint(x: 512, y: 384)
+        gameOverOverlay.zPosition = 1
+        gameOverOverlay.alpha = 0.4
+        addChild(gameOverOverlay)
+        
+        gameOverLabel = SKLabelNode(fontNamed: "Chalkduster")
+        gameOverLabel.fontSize = 72
+        gameOverLabel.fontColor = UIColor.yellow
+        gameOverLabel.text = message
+        gameOverLabel.position = CGPoint(x: 512, y: 454)
+        gameOverLabel.zPosition = 2
+        addChild(gameOverLabel)
+        
+        playAgainLabel = SKLabelNode(fontNamed: "Chalkduster")
+        playAgainLabel.name = "playAgain"
+        playAgainLabel.fontSize = 36
+        playAgainLabel.text = "Play Again"
+        playAgainLabel.position = CGPoint(x: 512, y: 400)
+        playAgainLabel.zPosition = 2
+        addChild(playAgainLabel)
+ 
+    }
+    func dismissGameOver() {
+        gameOverOverlay.removeFromParent()
+        gameOverLabel.removeFromParent()
+        playAgainLabel.removeFromParent()
+        
+        if nextLevelLabel != nil {
+            nextLevelLabel.removeFromParent()
+        }
+        
+        player.removeFromParent()
+    }
+    func playAgain() {
+        dismissGameOver()
+        createPlayer()
+        isGameOver = false
     }
 }
 
@@ -190,31 +275,5 @@ extension GameScene: SKPhysicsContactDelegate {
         } else if nodeB == player {
             playerCollided(with: nodeA)
         }   
-    }
-    func playerCollided( with node: SKNode) {
-        if node.name == "vortex" {
-            player.physicsBody?.isDynamic = false
-            isGameOver = true
-            score -= 1
-            
-            let move = SKAction.move(to: node.position, duration: 0.25)
-            let scale = SKAction.scale(to: 0.0001, duration: 0.25)
-            let remove = SKAction.removeFromParent()
-            let sequence = SKAction.sequence([move, scale, remove])
-            
-            player.run(sequence) { [weak self] in
-                self?.createPlayer()
-                self?.isGameOver = false
-            }
-            
-            gameOver(by: .enemy)
-            
-        } else if node.name == "star" {
-            node.removeFromParent()
-            score += 1
-        } else if node.name == "finish" {
-            // next level code for challenge
-            gameOver(by: .finish)
-        }
     }
 }
