@@ -20,6 +20,9 @@ enum ElementType: String {
     case star = "star"
     case finish = "finish"
 }
+enum GameOverType {
+    case finish, enemy
+}
 class GameScene: SKScene {
     var player: SKSpriteNode!
     var lastTouchPosition: CGPoint?
@@ -95,13 +98,17 @@ class GameScene: SKScene {
         let node = SKSpriteNode(imageNamed: elementName)
         
         node.position = position
-        node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
-        node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
-        node.physicsBody?.collisionBitMask = 0
+        
+        if element == .block {
+            node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+        } else {
+            node.physicsBody = SKPhysicsBody(circleOfRadius: node.size.width / 2)
+            node.physicsBody?.contactTestBitMask = CollisionTypes.player.rawValue
+            node.physicsBody?.collisionBitMask = 0
+        }
         
         switch element {
         case .block:
-            node.physicsBody = SKPhysicsBody(rectangleOf: node.size) // updates size
             node.physicsBody?.categoryBitMask = CollisionTypes.wall.rawValue
         case .vortex:
             node.name = elementName
@@ -131,7 +138,7 @@ class GameScene: SKScene {
         
         for (row, line) in lines.reversed().enumerated() {
             for (col, letter) in line.enumerated() {
-                let position = CGPoint(x: (64 * col) + 32, y: (64 * row) + 32)
+                let position = CGPoint(x: (64 * col) + 32, y: (64 * row) - 32)
                 
                 switch letter {
                 case "x":
@@ -164,6 +171,13 @@ class GameScene: SKScene {
         player.physicsBody?.collisionBitMask = CollisionTypes.wall.rawValue
         addChild(player)
     }
+    func gameOver(by gameOver: GameOverType) {
+        if gameOver == .finish {
+            print("hooray!")
+        } else if gameOver == .enemy {
+            print("Aw shucks!")
+        }
+    }
 }
 
 extension GameScene: SKPhysicsContactDelegate {
@@ -192,11 +206,15 @@ extension GameScene: SKPhysicsContactDelegate {
                 self?.createPlayer()
                 self?.isGameOver = false
             }
+            
+            gameOver(by: .enemy)
+            
         } else if node.name == "star" {
             node.removeFromParent()
             score += 1
         } else if node.name == "finish" {
             // next level code for challenge
+            gameOver(by: .finish)
         }
     }
 }
