@@ -30,6 +30,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Kae-d0-Rjp"/>
+                    <connections>
+                        <outlet property="imageView" destination="ROE-j8-Gz6" id="Oue-bh-hEy"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
