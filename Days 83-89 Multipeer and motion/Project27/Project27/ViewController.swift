@@ -14,7 +14,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        drawEmoji()
+//        drawEmoji()
+        drawSquare()
     }
     @IBAction func redrawTapped(_ sender: Any) {
         currentDrawType += 1
@@ -186,6 +187,26 @@ class ViewController: UIViewController {
             context.cgContext.drawPath(using: .stroke)
         }
         imageView.image = image
+    }
+    func drawSquare() {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 512, height: 512))
+        
+        let img = renderer.image { (context) in
+            // square one
+            UIColor.darkGray.setStroke()
+            context.stroke(CGRect(x: 156, y: 156, width: 200, height: 200))
+            UIColor.systemBlue.withAlphaComponent(CGFloat(0.5)).setFill()
+            context.fill(CGRect(x: 186, y: 186, width: 140, height: 140))
+            
+            
+            // square two
+            UIColor.red.setStroke()
+            context.stroke(CGRect(x: 56, y: 56, width: 400, height: 400))
+            UIColor.green.withAlphaComponent(CGFloat(0.5)).setFill()
+            context.fill(CGRect(x: 86, y: 86, width: 340, height: 340), blendMode: .overlay)
+        }
+        
+        imageView.image = img
     }
 }
 
