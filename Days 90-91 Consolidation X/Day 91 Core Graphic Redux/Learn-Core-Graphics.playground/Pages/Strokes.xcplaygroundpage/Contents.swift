@@ -16,12 +16,24 @@ let rendered = renderer.image { ctx in
     UIColor.red.setFill()
     UIColor.black.setStroke()
     ctx.cgContext.setLineWidth(40)
-
+    
     let bigCircle = CGRect(x: 300, y: 300, width: 400, height: 400)
+    
     ctx.cgContext.addEllipse(in: bigCircle)
     ctx.cgContext.drawPath(using: .fillStroke)
-
-    // Add your code here
+    
+    let x = [400, 700, 400, 100]
+    let y = [100, 400, 700, 400]
+    
+    for i in 0 ..< 4 {
+        UIColor.red.setFill()
+        ctx.cgContext.setLineWidth(10)
+        
+        let circle = CGRect(x: x[i], y: y[i], width: 200, height: 200)
+        
+        ctx.cgContext.addEllipse(in: circle)
+        ctx.cgContext.drawPath(using: .eoFillStroke)
+    }
 }
 
 showOutput(rendered)
