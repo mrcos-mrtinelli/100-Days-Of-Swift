@@ -11,17 +11,17 @@ let renderer = UIGraphicsImageRenderer(bounds: rect)
 let rendered = renderer.image { ctx in
     ctx.cgContext.setLineWidth(50)
 
-    let colors: [UIColor] = [.purple]//[.red, .yellow, .green, .blue, .purple]
+    let colors: [UIColor] = [.red, .orange, .yellow, .green, .blue, .purple]
     var xPos = 0
     var yPos = 500
-    var size = 950
+    var size = 1000
 
     for color in colors {
         // "These three values got corrupted!" – Boss
 
         xPos += 50
         yPos += 50
-        size -= 250
+        size -= 100
         
         let rect = CGRect(x: xPos, y: yPos, width: size, height: size)
         color.setStroke()

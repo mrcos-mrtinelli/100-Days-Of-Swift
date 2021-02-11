@@ -11,6 +11,17 @@ let renderer = UIGraphicsImageRenderer(bounds: rect)
 let mascot = UIImage(named: "HackingWithSwiftMascot.jpg")
 
 let rendered = renderer.image { ctx in
+    UIColor.darkGray.setFill()
+    ctx.cgContext.fill(rect)
+    
+    let frame = CGRect(x: 180, y: 180, width: 640, height: 640)
+    UIColor.black.setFill()
+    ctx.cgContext.fill(frame)
+    
+    let picSpace = CGRect(x: 190, y: 190, width:620, height: 620)
+    mascot?.draw(in: picSpace)
+    
+    
     // "I can't get this right!" – Designer
     // UIColor.darkGray.setFill()
     // ctx.cgContext.fill(rect)

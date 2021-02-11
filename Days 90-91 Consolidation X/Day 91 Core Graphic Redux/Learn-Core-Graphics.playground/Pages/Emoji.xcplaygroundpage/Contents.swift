@@ -9,13 +9,30 @@ let rect = CGRect(x: 0, y: 0, width: 1000, height: 1000)
 let renderer = UIGraphicsImageRenderer(bounds: rect)
 
 let rendered = renderer.image { ctx in
+    let eyeWidth = 150
+    let eyeHeight = 150
+    
+    
+    let face = CGRect(x: 100, y: 100, width: 800, height: 800)
     UIColor.black.setStroke()
     UIColor.yellow.setFill()
     ctx.cgContext.setLineWidth(10)
-
-    let face = CGRect(x: 0, y: 0, width: 800, height: 800)
     ctx.cgContext.addEllipse(in: face)
     ctx.cgContext.drawPath(using: .fillStroke)
+    
+    let leftEye = CGRect(x: 250, y: 300, width: eyeWidth, height: eyeHeight)
+    let rightEye = CGRect(x: 600, y: 300, width: eyeWidth, height: eyeHeight)
+    UIColor.black.setFill()
+    
+    ctx.cgContext.fillEllipse(in: leftEye)
+    ctx.cgContext.fillEllipse(in: rightEye)
+    
+        let mouth = CGRect(x: 350, y: 500, width: 300, height: 300)
+        UIColor.black.setStroke()
+        UIColor.brown.setFill()
+        ctx.cgContext.setLineWidth(10)
+        ctx.cgContext.addEllipse(in: mouth)
+        ctx.cgContext.drawPath(using: .fillStroke)
 }
 
 showOutput(rendered)
