@@ -41,9 +41,25 @@ class ViewController: UIViewController {
                 }
             }
         } else {
-            let ac = UIAlertController(title: "Biometric Authentication Not Available", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .default))
-            present(ac, animated: true)
+            // password login
+            // check keychain for existing password
+            if KeychainWrapper.standard.string(forKey: "userPassword") != nil {
+                // get password from input
+                // confirm > unlock
+                // can't confirm > ask again.
+            } else {
+                print("create a new password.")
+            }
+            // if existing
+            // ..ask to enter password
+            // ..check if matches
+            // ..matches > unlock
+            // ..doesn't match > try again
+            
+            // if password doesn't exist
+            // .. create a password
+            // .. save to keychain
+            // .. unlock
         }
     }
     
@@ -68,6 +84,8 @@ class ViewController: UIViewController {
         secret.isHidden = false
         title = "Secret Text"
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(saveSecretText))
+        
         secret.text = KeychainWrapper.standard.string(forKey: "SecretMessage") ?? ""
     }
     @objc func saveSecretText() {
@@ -77,6 +95,8 @@ class ViewController: UIViewController {
         secret.resignFirstResponder()
         secret.isHidden = true
         title = "Nothing to see here"
+        navigationItem.rightBarButtonItem = nil
     }
+    
 }
 
