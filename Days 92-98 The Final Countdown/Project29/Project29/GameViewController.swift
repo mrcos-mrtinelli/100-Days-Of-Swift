@@ -19,10 +19,29 @@ class GameViewController: UIViewController {
     @IBOutlet var launchButton: UIButton!
     @IBOutlet var playerNumber: UILabel!
     
+    @IBOutlet var player1ScoreLabel: UILabel!
+    @IBOutlet var player2ScoreLabel: UILabel!
+    @IBOutlet var playAgainButton: UIButton!
+    
+    var isGameOver = false
+    var timer: Timer?
+    
+    var player1Score = 0 {
+        didSet {
+            player1ScoreLabel.text = "P1: \(player1Score)"
+        }
+    }
+    var player2Score = 0 {
+        didSet {
+            player2ScoreLabel.text = "P2: \(player2Score)"
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         if let view = self.view as! SKView? {
+            
             // Load the SKScene from 'GameScene.sks'
             if let scene = SKScene(fileNamed: "GameScene") {
                 // Set the scale mode to scale to fit the window
@@ -33,6 +52,7 @@ class GameViewController: UIViewController {
                 
                 currentGame = scene as? GameScene
                 currentGame?.viewController = self
+
             }
             
             view.ignoresSiblingOrder = true
@@ -40,8 +60,38 @@ class GameViewController: UIViewController {
             view.showsFPS = true
             view.showsNodeCount = true
             
+            player1Score = 0
+            player2Score = 0
             angleChanged(self)
             velocityChanged(self)
+        }
+    }
+    func updateScore(forPlayerNumber player: Int) {
+        if player == 1 {
+            player1Score += 1
+        } else {
+            player2Score += 1
+        }
+        
+        if player1Score == 3 {
+            playerNumber.text = "WINNER: PLAYER 1"
+            gameOver()
+        } else if player2Score == 3 {
+            playerNumber.text = "WINNER: PLAYER 2"
+            gameOver()
+        }
+    }
+    func playerNumber(isBlinking: Bool) {
+        var showHide = true
+
+        if !isBlinking {
+            timer?.invalidate()
+            return
+        }
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            self?.playerNumber.isHidden = showHide
+            showHide = !showHide
         }
     }
 
@@ -68,13 +118,7 @@ class GameViewController: UIViewController {
         velocityLabel.text = "Velocity: \(Int(velocitySlider.value))"
     }
     @IBAction func launch(_ sender: Any) {
-        angleSlider.isHidden = true
-        angleLabel.isHidden = true
-        
-        velocityLabel.isHidden = true
-        velocitySlider.isHidden = true
-        
-        launchButton.isHidden = true
+        gameControls(isHidden: true)
         
         currentGame?.launch(angle: Int(angleSlider.value), velocity: Int(velocitySlider.value))
     }
@@ -84,13 +128,32 @@ class GameViewController: UIViewController {
         } else {
             playerNumber.text = "PLAYER TWO >>>"
         }
-        angleSlider.isHidden = false
-        angleLabel.isHidden = false
         
-        velocityLabel.isHidden = false
-        velocitySlider.isHidden = false
+        gameControls(isHidden: false)
         
-        launchButton.isHidden = false
+    }
+    func gameControls(isHidden: Bool) {
+        angleSlider.isHidden = isHidden
+        angleLabel.isHidden = isHidden
+        velocityLabel.isHidden = isHidden
+        velocitySlider.isHidden = isHidden
+        launchButton.isHidden = isHidden
+    }
+    func gameOver() {
+        isGameOver = true
+        gameControls(isHidden: true)
+        playerNumber(isBlinking: true)
+        playAgainButton.isHidden = false
+    }
+    @IBAction func playAgainTapped(_ sender: Any) {
+        player1Score = 0
+        player2Score = 0
         
+        gameControls(isHidden: false)
+        playerNumber(isBlinking: false)
+        playAgainButton.isHidden = true
+        
+        isGameOver = false
+        currentGame?.newGame(delay: 0)
     }
 }
