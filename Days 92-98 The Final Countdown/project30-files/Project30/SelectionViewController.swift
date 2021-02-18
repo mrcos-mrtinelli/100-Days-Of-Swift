@@ -24,8 +24,9 @@ class SelectionViewController: UITableViewController {
 
 		// load all the JPEGs into our array
 		let fm = FileManager.default
+        guard let path = Bundle.main.resourcePath else { return }
 
-		if let tempItems = try? fm.contentsOfDirectory(atPath: Bundle.main.resourcePath!) {
+		if let tempItems = try? fm.contentsOfDirectory(atPath: path) {
 			for item in tempItems {
 				if item.range(of: "Large") != nil {
 					items.append(item)
@@ -62,7 +63,7 @@ class SelectionViewController: UITableViewController {
 		// find the image for this cell, and load its thumbnail
 		let currentImage = items[indexPath.row % items.count]
 		let imageRootName = currentImage.replacingOccurrences(of: "Large", with: "Thumb")
-		let path = Bundle.main.path(forResource: imageRootName, ofType: nil)!
+        let path = Bundle.main.path(forResource: imageRootName, ofType: nil)!
 		let original = UIImage(contentsOfFile: path)!
         
         // rendereRect
