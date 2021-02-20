@@ -1,2 +1,3 @@
 # 100DaysOfSwift
-Learning Swift in 100 Days!
+Completed 100 Days of Swift/Code!
+Nov 12, 2020 - Feb 19, 2021
